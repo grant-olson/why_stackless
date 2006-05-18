@@ -1,0 +1,16 @@
+body{
+    font-family:sans-serif;
+    margin-left:5%;
+    margin-right:5%;
+    }
+
+.literal-block {
+    margin-left:5%;
+    margin-right:5%;
+    padding-top:1em;
+    padding-bottom:1em;
+    padding-left:1em;
+    font-weight:bold;
+    background:#dddddd;
+    border:1pt solid black;
+}

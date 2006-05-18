@@ -1,0 +1,118 @@
+==============================
+Getting Started With Stackless
+==============================
+
+----------
+Installing
+----------
+
+Windows
+=======
+
+Linux
+=====
+
+-----------
+Quick Start
+-----------
+
+::
+    
+    >>> import stackless
+    >>> 
+    >>> def task(x):
+    ... 	print x
+    ... 	
+    >>> stackless.tasklet(task)("one")
+    <stackless.tasklet object at 0x014D7170>
+    >>> stackless.tasklet(task)("two")
+    <stackless.tasklet object at 0x014E67B0>
+    >>> stackless.tasklet(task)("three")
+    <stackless.tasklet object at 0x014E6770>
+    >>> 
+    >>> stackless.run()
+    one
+    two
+    three
+    >>> 
+
+No big deal.  This doesn't really show you what stackless is good for.  Now we add this function::
+
+    >>> def task2(x):
+    ... 	while 1:
+    ... 		print x
+    ... 		
+    >>> task2('one')
+    one
+    one
+    one
+    ...
+
+If you try to call this function, it'll obviously create an infinite loop and go until you either hit <CTRL-C> or kill the program.  Here's the stackless version, only slightly different::
+
+    >>> def task3(x):
+    ... 	while 1:
+    ... 		print x
+    ... 		stackless.schedule()
+    ... 		
+    >>> stackless.tasklet(task3)('one')
+    <stackless.tasklet object at 0x014E68B0>
+    >>> stackless.tasklet(task3)('two')
+    <stackless.tasklet object at 0x014E6770>
+    >>> stackless.tasklet(task3)('three')
+    <stackless.tasklet object at 0x014EDAB0>
+    >>> 
+    >>> stackless.run()
+    one
+    two
+    three
+    one
+    two
+    three
+    one
+    ...
+
+Round Robin Scheduling, but we still have an infinite group.  Try again::
+
+    >>> import stackless
+    >>> 
+    >>> def task3(x):
+    ... 	while 1:
+    ... 		print x
+    ... 		stackless.schedule()
+    ... 		
+    >>> stackless.tasklet(task3)('one')
+    <stackless.tasklet object at 0x014D7FB0>
+    >>> stackless.tasklet(task3)('two')
+    <stackless.tasklet object at 0x014D73B0>
+    >>> stackless.tasklet(task3)('three')
+    <stackless.tasklet object at 0x014D7330>
+    >>> 
+    >>> stackless.run(500)
+    one
+    two
+    <stackless.tasklet object at 0x014D73B0>
+    >>> 
+    >>> stackless.run(500)
+    three
+    one
+    <stackless.tasklet object at 0x014D7FB0>
+    >>> 
+    >>> stackless.run(500)
+    three
+    <stackless.tasklet object at 0x014D7330>
+    >>> 
+    >>> stackless.run(500)
+    >>> 
+    >>> 
+    >>> 
+    >>> stackless.tasklet(task3)('one')
+    <stackless.tasklet object at 0x014D73B0>
+    >>> stackless.tasklet(task3)('two')
+    <stackless.tasklet object at 0x014D7730>
+    >>> stackless.tasklet(task3)('three')
+    <stackless.tasklet object at 0x014DAC70>
+    >>> tasklet = stackless.run(500)
+    one
+    >>> 
+

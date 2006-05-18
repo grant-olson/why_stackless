@@ -1,0 +1,18 @@
+==========
+Coroutines
+==========
+
+--------------------------
+Introduction to Coroutines
+--------------------------
+
+Most conventional programming languages expose the concept of subroutines.  A
+subroutine is called by another subroutine and may or may not return a result.
+By definition, a subroutine is subordinate to the caller.  Coroutines are
+similar, but they co-exist instead of taking the subordinate approach.
+
+Take the following example:
+
+.. include:: code\\pingpong.py
+   :literal:
+
