@@ -5,6 +5,35 @@ Dataflow
 .. include:: code\\assemblyline.py
    :literal:
 
+--------------
+Enter Dataflow
+--------------
+
+If you're familiar with unix systems, you've probably used dataflow techniques
+whether you knew it or not.  Take the following shell command::
+
+    cat README | more
+
+In fairness, the Windows equivilent is::
+
+    type readme.txt | more
+
+Although dataflow techniques aren't as pervasive in the Windows world as they
+are in the Unix world.
+
+For those who are unfamilar with the *more* program, it recieves input from an
+external source, displays a page's worth of output, pauses until the user hits
+a key, and shows another page.  The '|' operator takes the output from one
+program, and pipes it into the input of another command.  In this case, either
+*cat* or *type* sends the text of a document to standard output, and *more*
+recieves it.
+
+The *more* program just sits there until data flows into it from another
+program.  Once enough data flows in, it displays a page on the screen and
+pauses.  The user hits a key, and more lets more data flow in.  Hence the term
+*dataflow*.
+
+
 .. include:: code\\assemblyline-stackless.py
    :literal:
 

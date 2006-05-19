@@ -16,3 +16,60 @@ Take the following example:
 .. include:: code\\pingpong.py
    :literal:
 
+An experienced programmer will see a problem with this program.  It causes a
+stack overflow.  If you run the program, it'll display a big nasty traceback
+indicating that you ran out of stackspace.
+
+---------
+The Stack
+---------
+
+I debated how much detail I should get into about the C-stack, and decided to
+bypass the description entirely.  It seemed like other attempts to describe it
+and diagrams only made senst to people who already understood it.  I'll try to
+provide a simplictic explaiantion of it.  Interested readers should look for
+more information on the web.
+
+Every time you call a subroutine, it creates a stack frame.  When you call
+*ping()* it creates a stack frame that holds information for the subroutine
+call.  Simplistically, the frame says that says *ping pinged*.  When it calles
+*pong()*, this creates another stack frame that says *pong ponged*.  The stack
+frames are chained together.  In this case, the stack basically says *ping
+pinged so pong ponged*.  Of course when *pong()* calls *ping()* this extends
+the stack.  Here is a visual representation:
+
+===== ===========================================================================
+Frame Stack
+===== ===========================================================================
+ 1    ping pinged
+ 2    ping pinged so pong ponged
+ 3    ping pinged so pong ponged so ping pinged
+ 4    ping pinged so pong ponged so ping pinged so pong ponged
+ 5    ping pinged so pong ponged so ping pinged so pong ponged so ping pinged
+ 6    ping pinged so pong ponged so ping pinged so pong ponged so ping pinged ...
+===== ===========================================================================
+
+Now imagine that the page width represents the memory that your system has
+allocated to the stack.  When you hit the edge of the page, you *overflow* and
+the system runs out of memory.  Hence the term *stack overflow*.
+
+----------------
+Enter Coroutines
+----------------
+
+In this case, it's a little silly that the stack overflows.  *ping()* and
+*pong()* aren't really subroutines.  One isn't subordinate to the other.  They
+are *coroutines*, on equal footing, who interact with each other.
+
+===== ===========================================================================
+Frame Stack
+===== ===========================================================================
+ 1    ping pinged
+ 2    pong ponged
+ 3    ping pinged
+ 4    pong ponged
+ 5    ping pinged
+ 6    pong ponged
+===== ===========================================================================
+
+
