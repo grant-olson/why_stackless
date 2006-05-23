@@ -16,103 +16,189 @@ Linux
 Quick Start
 -----------
 
-::
-    
+Tasklets
+========
+
+Tasklets are the primary building block for stackless.  You create a tasklet by
+feeding it any python callable (usually a function or class method).  This
+creates a tasklet and adds it to the scheduler.  Here is a quick
+demonstration::
+
+    Python 2.4.3 Stackless 3.1b3 060504 (#69, May  3 2006, 19:20:41) [MSC v.1310 32
+    bit (Intel)] on win32
+    Type "help", "copyright", "credits" or "license" for more information.
     >>> import stackless
-    >>> 
-    >>> def task(x):
-    ... 	print x
-    ... 	
-    >>> stackless.tasklet(task)("one")
-    <stackless.tasklet object at 0x014D7170>
-    >>> stackless.tasklet(task)("two")
-    <stackless.tasklet object at 0x014E67B0>
-    >>> stackless.tasklet(task)("three")
-    <stackless.tasklet object at 0x014E6770>
-    >>> 
+    >>>
+    >>> def print_x(x):
+    ...     print x
+    ...
+    >>> stackless.tasklet(print_x)('one')
+    <stackless.tasklet object at 0x00A45870>
+    >>> stackless.tasklet(print_x)('two')
+    <stackless.tasklet object at 0x00A45A30>
+    >>> stackless.tasklet(print_x)('three')
+    <stackless.tasklet object at 0x00A45AB0>
+    >>>
     >>> stackless.run()
     one
     two
     three
-    >>> 
+    >>>
 
-No big deal.  This doesn't really show you what stackless is good for.  Now we add this function::
+Note that the tasklets queue up and don't run until you call *stackless.run()*.
 
-    >>> def task2(x):
-    ... 	while 1:
-    ... 		print x
-    ... 		
-    >>> task2('one')
-    one
-    one
-    one
-    ...
+The main tasklet
+----------------
 
-If you try to call this function, it'll obviously create an infinite loop and go until you either hit <CTRL-C> or kill the program.  Here's the stackless version, only slightly different::
+TODO: Why do we care about this? Should we cover it here?
 
-    >>> def task3(x):
-    ... 	while 1:
-    ... 		print x
-    ... 		stackless.schedule()
-    ... 		
-    >>> stackless.tasklet(task3)('one')
-    <stackless.tasklet object at 0x014E68B0>
-    >>> stackless.tasklet(task3)('two')
-    <stackless.tasklet object at 0x014E6770>
-    >>> stackless.tasklet(task3)('three')
-    <stackless.tasklet object at 0x014EDAB0>
-    >>> 
-    >>> stackless.run()
-    one
-    two
-    three
-    one
-    two
-    three
-    one
-    ...
+The Scheduler
+=============
 
-Round Robin Scheduling, but we still have an infinite group.  Try again::
+The scheduler controls the order in which the tasklets are run.  If you just
+create a bunch of tasklets, they will run in the order they are created.  In
+practice, you will generally create tasklets that reschedule themselves so that
+each one can have it's turn.  A quick demonstration::
 
+    Python 2.4.3 Stackless 3.1b3 060504 (#69, May  3 2006, 19:20:41) [MSC v.1310 32
+    bit (Intel)] on win32
+    Type "help", "copyright", "credits" or "license" for more information.
     >>> import stackless
-    >>> 
-    >>> def task3(x):
-    ... 	while 1:
-    ... 		print x
-    ... 		stackless.schedule()
-    ... 		
-    >>> stackless.tasklet(task3)('one')
-    <stackless.tasklet object at 0x014D7FB0>
-    >>> stackless.tasklet(task3)('two')
-    <stackless.tasklet object at 0x014D73B0>
-    >>> stackless.tasklet(task3)('three')
-    <stackless.tasklet object at 0x014D7330>
-    >>> 
-    >>> stackless.run(500)
-    one
-    two
-    <stackless.tasklet object at 0x014D73B0>
-    >>> 
-    >>> stackless.run(500)
-    three
-    one
-    <stackless.tasklet object at 0x014D7FB0>
-    >>> 
-    >>> stackless.run(500)
-    three
-    <stackless.tasklet object at 0x014D7330>
-    >>> 
-    >>> stackless.run(500)
-    >>> 
-    >>> 
-    >>> 
-    >>> stackless.tasklet(task3)('one')
-    <stackless.tasklet object at 0x014D73B0>
-    >>> stackless.tasklet(task3)('two')
-    <stackless.tasklet object at 0x014D7730>
-    >>> stackless.tasklet(task3)('three')
-    <stackless.tasklet object at 0x014DAC70>
-    >>> tasklet = stackless.run(500)
-    one
-    >>> 
+    >>>
+    >>> def print_three_times(x):
+    ...     print "1:", x
+    ...     stackless.schedule()
+    ...     print "2:", x
+    ...     stackless.schedule()
+    ...     print "3:", x
+    ...     stackless.schedule()
+    ...
+    >>>
+    >>> stackless.tasklet(print_three_times)('first')
+    <stackless.tasklet object at 0x00A45870>
+    >>> stackless.tasklet(print_three_times)('second')
+    <stackless.tasklet object at 0x00A45A30>
+    >>> stackless.tasklet(print_three_times)('third')
+    <stackless.tasklet object at 0x00A45AB0>
+    >>>
+    >>> stackless.run()
+    1: first
+    1: second
+    1: third
+    2: first
+    2: second
+    2: third
+    3: first
+    3: second
+    3: third
+    >>>
+
+Note that when we call *stackless.schedule()*, the active tasklet pauses
+itself and reinserts itself into the end of the scheduler, allowing the next
+tasklet to run.  One the last tasklet has run, the first picks up where it left
+off.  This continues until all active tasklets have finished running.  This is
+how we achieve cooperative multitasking with stackless.
+
+Channels
+========
+
+Channels allow you to send information between tasklets.  This accomplished two
+things:
+
+    1. It allows you to exchange information between tasklets.
+
+    2. It allows you to control the flow of execution.
+
+Another quick demonstration::
+
+    C:\>c:\python24\python
+    Python 2.4.3 Stackless 3.1b3 060504 (#69, May  3 2006, 19:20:41) [MSC v.1310 32
+    bit (Intel)] on win32
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import stackless
+    >>>
+    >>> channel = stackless.channel()
+    >>>
+    >>> def receiving_tasklet():
+    ...     print "Recieving tasklet started"
+    ...     print channel.receive()
+    ...     print "Receiving tasklet finished"
+    ...
+    >>> def sending_tasklet():
+    ...     print "Sending tasklet started"
+    ...     channel.send("send from sending_tasklet")
+    ...     print "sending tasklet finished"
+    ...
+    >>> def another_tasklet():
+    ...     print "Just another tasklet in the scheduler"
+    ...
+    >>> stackless.tasklet(receiving_tasklet)()
+    <stackless.tasklet object at 0x00A45B30>
+    >>> stackless.tasklet(sending_tasklet)()
+    <stackless.tasklet object at 0x00A45B70>
+    >>> stackless.tasklet(another_tasklet)()
+    <stackless.tasklet object at 0x00A45BF0>
+    >>>
+    >>> stackless.run()
+    Recieving tasklet started
+    Sending tasklet started
+    send from sending_tasklet
+    Receiving tasklet finished
+    Just another tasklet in the scheduler
+    sending tasklet finished
+    >>>
+    >>>
+
+When the receiving tasklet calls *channel.receive()*, it blocks.  This means
+the tasklet pauses until something is sent over the channel.  Nothing other
+than sending something over the channel will re-activate the tasklet.
+
+When something is sent over the channel by the sending tasklet, the receiving
+tasklet resumes immediately, bypassing the existing schedule.  The sending
+tasklet is send to the back of the schedule, as if *stackless.schedule()* had
+been called.
+
+Also note that a send will block if there is nothing to immediately receive the
+message::
+
+    >>>
+    >>> stackless.tasklet(sending_tasklet)()
+    <stackless.tasklet object at 0x00A45B70>
+    >>> stackless.tasklet(another_tasklet)()
+    <stackless.tasklet object at 0x00A45BF0>
+    >>>
+    >>> stackless.run()
+    Sending tasklet started
+    Just another tasklet in the scheduler
+    >>>
+    >>> stackless.tasklet(another_tasklet)()
+    <stackless.tasklet object at 0x00A45B30>
+    >>> stackless.run()
+    Just another tasklet in the scheduler
+    >>>
+    >>> #Finally adding the receiving tasklet
+    ...
+    >>> stackless.tasklet(receiving_tasklet)()
+    <stackless.tasklet object at 0x00A45BF0>
+    >>>
+    >>> stackless.run()
+    Recieving tasklet started
+    send from sending_tasklet
+    Receiving tasklet finished
+    sending tasklet finished
+    >>>
+
+The sending tasklet will not be re-inserted into the scheduler until it has
+successfully send data to another tasklet.
+
+
+-------
+Summary
+-------
+
+That covers a majority of stackless' functionality.  Doesn't seem like much
+does it?  We dealt with a couple of objects and maybe 4 or 5 function calls.
+By using this small API as our building blocks, we can start to do some really
+interesting things.
+
 
