@@ -2,12 +2,130 @@
 Lightweight Threads
 ===================
 
---------
-Threaded
---------
+Threadlets, as the name implies, are lightweight compared to the threads built
+into today's OSes and supported by the standard python code.  They use less
+memory than a 'traditional' thread, and switching between threadlets is much
+less resource intensive than switching between 'traditional' threads.
+
+To demonstrate exactly how much more efficient threadlets are than traditional threads, we'll write the same program using both traditional threads and threadlets.
+
+------------------------
+The hackysack simulation
+------------------------
+
+Hackysack is a game in which a group of dirty hippies stand in a circle and
+kick a small bean filled bag around.  The object is to keep the bag from
+hitting the ground, while passing it to other players and doing tricks.
+Players can only use thier feet to kick the ball around.
+
+In our simple simulation, we'll assume that the circle is a constant size once
+the game starts, and that the players are so good that the game will go on
+infinitely if allowed.
+
+--------------------------------------
+Tradional threaded version of the game
+--------------------------------------
 
 .. include:: code\\hackeysackthreaded.py
    :literal:
+
+A hackysacker class is initialized with it's name, a reference to a global list
+circle that contains all of the players, and a message queue derived from the
+Queue class included in the python standard library.
+
+The Queue class acts similarly to stackless channels.  It contains put() and
+get() methods.  Calling the put() method on an empty Queue blocks until another
+thread put()s something into the Queue.
+
+The init method then starts the messageLoop in a new thread using the thread
+module from the python standard library.  The message loop starts an infinite
+loop that processes messages in the queue.  If it recieves the special message
+'exit', it terminates the thread.
+
+If it recieves another message, that indicates that it is recieving the
+hackysack.  It grabs another random player from the loop and 'kicks' the
+hackysack to it by sending it a message.
+
+Once there have been enough kicks, as counted by the class variable
+hackysacker.counter, each player in the circle is sent the special 'exit'
+message.
+
+Note that there is also a debugPrint function that prints output if the global
+variable debug is non-zero.  We can print the game to stdout, but this will
+make the timing inaccurate when we measure it.
+
+Let's run the program to verify that it works::
+
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.exe hackeysackthreaded.py
+    1 got hackeysack from 1
+    1 kicking hackeysack to 4
+    4 got hackeysack from 1
+    4 kicking hackeysack to 0
+    0 got hackeysack from 4
+    0 kicking hackeysack to 1
+    1 got hackeysack from 0
+    1 kicking hackeysack to 3
+    3 got hackeysack from 1
+    3 kicking hackeysack to 3
+    4 is going home
+    2 is going home
+    1 is going home
+    0 is going home
+    1 is going home
+    
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>
+
+And we see that all the hackysackers get together and play a quick game.  Now
+let's time some trial runs.  The python standard library include a program
+timeit.py that does this.  In this case, we'll disable printing as well::
+
+  C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
+  e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
+  nit(10,1000,0)
+  10 loops, best of 3: 183 msec per loop
+
+
+Ten hackysackers going 1000 rounds takes 183 msecs on my computer.  Let's
+increase the number of players::
+
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
+    e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
+    nit(100,1000,0)
+    10 loops, best of 3: 231 msec per loop
+    Unhandled exception in thread started by
+    Error in sys.excepthook:
+    
+    Original exception was:
+    
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
+    e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
+    nit(1000,1000,0)
+    10 loops, best of 3: 681 msec per loop
+    Unhandled exception in thread started by
+    Error in sys.excepthook:
+    
+    Original exception was:
+    
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
+    e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
+    nit(10000,1000,0)
+    Traceback (most recent call last):
+      File "c:\Python24\lib\timeit.py", line 255, in main
+        x = t.timeit(number)
+      File "c:\Python24\lib\timeit.py", line 161, in timeit
+        timing = self.inner(it, self.timer)
+      File "<timeit-src>", line 6, in inner
+      File ".\hackeysackthreaded.py", line 58, in runit
+        hackysacker(`i`,circle)
+      File ".\hackeysackthreaded.py", line 14, in __init__
+        thread.start_new_thread(self.messageLoop,())
+    error: can't start new thread
+
+And we get an error when trying to start 10,000 threads on my 3 Ghz machine
+with 1 Gig of ram.  I don't want to bore you with the details of the output,
+but with some trial and error, the program starts failing at about 1100
+threads.  Also note that 1000 threads takes about three times as long as 10.
+
 
 ---------
 Stackless
@@ -16,18 +134,62 @@ Stackless
 .. include:: code\\hackeysackstackless.py
    :literal:
 
------------
-stackless 2
------------
+This code is virtually identical to the threaded version.  The primary
+differences are that we start tasklets instead of threads, and we switch
+between threads via channels instead of a Queue object.  Let's run it and
+verify the output::
 
-.. include:: code\\hackeysack_iii.py
-   :literal:
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
+    e hackeysackstackless.py
+    1 got hackeysack from 1
+    1 kicking hackeysack to 1
+    1 got hackeysack from 1
+    1 kicking hackeysack to 4
+    4 got hackeysack from 1
+    4 kicking hackeysack to 1
+    1 got hackeysack from 4
+    1 kicking hackeysack to 4
+    4 got hackeysack from 1
+    4 kicking hackeysack to 0
 
------------
-stackless 3
------------
+And it works as expected.  Now for the timing::
 
- .. include:: code\\hackeysack_iv.py
-   :literal:
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
+    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    unit(10,1000,0)
+    100 loops, best of 3: 19.7 msec per loop
+
+
+It only takes 19.7 msec.  This is almost 10 times faster than the threaded version.  Now lets start increasing the number of threadlets::
+
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
+    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    unit(100,1000,0)
+    100 loops, best of 3: 19.7 msec per loop
+    
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
+    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    unit(1000,1000,0)
+    10 loops, best of 3: 26.9 msec per loop
+    
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
+    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    unit(10000,1000,0)
+    10 loops, best of 3: 109 msec per loop
+    
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
+    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    unit(100000,1000,0)
+    10 loops, best of 3: 1.07 sec per loop
+
+Even by the time we get to 10,000 threads, which the threaded version wasn't even capable of running, we're still running faster than the threaded version did with only 10 threads.
+
+Now I'm trying to keep the code simple, so you'll have to take my word for it, but the increase in timings here is due to the time it takes to setup the hackysack circle.  The amount of time to run the game is constant whether you have 10 threadlets or 100000 threadlets.  This is beacause of the way channels work: they block and instantly resume when they get a message.  On the other hand, OS threads each take turns checking to see if their message Queue has any elements.  This means that the more threads you run, the worse performance gets.
+
+-------
+Summary
+-------
+
+Hopefully, I've successfully demonstrated that threadlets run at least an order of magnitude faster than OS threads, and scale much better.
 
 
