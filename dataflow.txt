@@ -2,8 +2,111 @@
 Dataflow
 ========
 
+-----------
+The Factory
+-----------
+
+Let's pretend we want to write a simulation of a doll factory that has the
+following requirements:
+
+    + One storeroom that contains plastic pellets that will be molded.
+
+    + One storeroom that contains rivets used to attach parts.
+
+    + An injection molder that takes 0.2 pounds of plastic pellets and creates
+      a pair of arms in 6 seconds.
+
+    + An injection molder that takes 0.2 pounds of plastic pellets and creates
+      a pair of legs in 5 seconds.
+
+    + An injection molder that takes 0.1 pounds of plastic pellets and creates
+      a head in 4 seconds.
+
+    + An injection molder that takes 0.5 pounds of plastic pellets and creates
+      a torso in 10 seconds.
+
+    + An assembly station that takes a completed torso, a completed pair of 
+      legs, a rivet, and puts them together in 2 seconds.
+
+    + An assembly station that takes the combined part from above, a pair of
+      arms, and a rivet and puts them together in 2 seconds.
+
+    + An assembly station that takes the completed part from above, a head,
+      and a rivet and puts them together in 3 seconds.
+
+    + Each station keeps on doing this forever.
+
+
+--------------------
+The 'normal' version
+--------------------
+
+I'll take a stab at writing this 'normally' without using stackless.  After we
+go through the 'normal' example, we'll build one with stackless and compare the
+resulting code.  If you think the example is contrived, and you have the time,
+you may want to take a break, write a factory with the above requirements
+yourself, and compare your resulting code to the stackless version.  
+
+Here is the code:
+
 .. include:: code\\assemblyline.py
    :literal:
+
+Analysis
+========
+
+We start off with a class that represents the storerooms.  It is initialized
+with a product name, a unit measurement (such as pounds or number of parts),
+and an initial quantity.  There is also a run method that does nothing; its
+usage will become clear a little later.  We create two storeroom instances
+based on this class.
+
+Next up is an injectionMolder class.  It is initialized with the name of a
+finished part, a storeroom that acts a plastic source, the quantity required to
+build one part, and the time required to create the part.  There is a get()
+method that can be used to get retrieve a finished part and adjust inventory if
+one exists.  For this class the run() method actually does something:
+
+    + While the timer is above 0, it continues molding and decrements the counter.
+
+    + When the time-to-mold reaches 0, a finished part is created and the time
+      counter is set to -1.
+
+    + When the time counter is -1, the molder checks to see if it has enough 
+      plastic to mold another part, retrieves it if necessary, and begins 
+      molding.
+
+We create four injection molder instances with this class.
+
+Next up is an assembler class.  It is initialized with the name of the finished
+part, the source for part 1, the source for part 2, a storeroom that contains
+rivets, and the time required to assemble the parts in question.  There is a get()
+method that can be used to get retrieve a finished part and adjust inventory if
+one exists.  For this class the run() method:
+
+    + If the timer is greater than one, the assembler has the required parts and 
+      continues to assemble.
+
+    + If the timer equals 0, a part is completed and inventory is adjusted.
+
+    + If the timer is less than one, the assembler tries to grab one of each part 
+      required to start building again.  It may have to wait here if a part hasn't
+      finished molding yet.
+
+Assembler instances are created to attach the leg, arm, and head.
+
+.. note ::
+   You'll notice a lot of similarities between the storeroom, injectionMolder,
+   and assember classes contain a lot of similarities.  If I was writing a
+   production system, I would probably create a base class and use inheritance.
+   In this case, I thought setting up a class heirarchy would confuse the code,
+   so I kept it intentionally simple.
+
+
+All instances from all three classes are loaded into an array called
+compenents.  We then create an event loop that repeatedly calls the run()
+method for each component.
+
 
 --------------
 Enter Dataflow
@@ -30,20 +133,97 @@ recieves it.
 
 The *more* program just sits there until data flows into it from another
 program.  Once enough data flows in, it displays a page on the screen and
-pauses.  The user hits a key, and more lets more data flow in.  Hence the term
+pauses.  The user hits a key, and more lets more data flow in.  Once again,
+more waits until enough data flows in, displays it, and pauses.  Hence the term
 *dataflow*.
 
+Using the stackless round-robin scheduler in addition to channels, we can use
+dataflow techniques to write the factory simulation.
 
-.. include:: code\\assemblyline-stackless.py
-   :literal:
-
-.. include:: code\\assemblyline-stackless-2.py
-   :literal:
-
-.. include:: code\\assemblyline-stackless-3.py
-   :literal:
+---------------------------------
+The Stackless Version of the Code
+---------------------------------
 
 .. include:: code\\assemblyline-stackless-4.py
    :literal:
+
+Analysis
+========
+
+Sleeper utilities
+-----------------
+
+First, we create some helper functions that allow our classes to 'sleep'.  When
+a tasklet calls Sleep(), it creates a channel, calculates a time to wake up,
+and attaches this information to the global sleepingTasklets array.  After
+that, channel.receive() is called.  This causes the calling tasklet to pause
+until reawakened.
+
+Then we create a function to manage the sleeping tasklets.  It checks the
+global sleepingTasklets array, finds any items that are ready to wake up, and
+reactivates them via the channel.  This function is added to the tasklet
+scheduler.
+
+The classes
+-----------
+
+The storeroom class is similar to the other version.  The primary difference is
+that if there is not enough to get(), the class keeps on rescheduling the
+tasklet until it is.  Also, a tasklet is created on instatiation.  Plastic and rivet storeroom instances are created.
+
+The injectionMolder class is also similar to the other version.  The get() method works like the storeroom get() method, and keeps on rescheduling itself until a part is ready.  The run loop...
+
+The assembler class is also similar to the other version.  The get() method works like the storeroom get() method, and keeps on rescheduling itself until a part is ready.  The run loop...
+
+-----------------------
+So what have we gained?
+-----------------------
+
+Okay, so what's the big deal? Lets examine the run method from the original
+version of the factory::
+
+    def run(self):
+        if self.time == 0:
+            self.items += 1
+            print "%s finished assembling part" % self.name
+            self.time -= 1
+        elif self.time < 0:
+            print "%s starts assembling new part" % self.name
+            if self.itemA < 1:
+                print "%s Getting item A" % self.name
+                self.itemA += self.partAsource.get(1)
+                if self.itemA < 1:
+                    print "%s waiting for item A" % self.name
+            elif self.itemB < 1:
+                print "%s Getting item B" % self.name
+                self.itemB += self.partBsource.get(1)
+                if self.itemB < 1:
+                    print "%s waiting for item B" % self.name
+            print "%s starting to assemble" % self.name
+            self.time = self.timeToAssemble
+        else:
+            print "%s assembling for %s more seconds" % (self.name, self.time)
+            self.time -= 1
+
+And then the stackless version::
+
+    def run(self):        
+        while 1:
+            print "%s starts assembling new part" % self.name
+            self.itemA += self.partAsource.get(1)
+            self.itemB += self.partBsource.get(1)
+            print "%s starting to assemble" % self.name
+            Sleep(self.timeToAssemble)
+            print "%s done assembling after %s" % (self.name, self.timeToAssemble)
+            self.items += 1
+            print "%s finished assembling part" % self.name
+            stackless.schedule()
+
+The stackless version is much simpler, clearer, and intuitive than the original
+version.  It doesn't wrap the event loop infrastructure into the run method.
+This has been decoupled from the run() method.  The run() method only expresses
+what it is doing, and doesn't worry about the details of how it gets done.  It
+lets the software developer concentrate on how the factory works, and not how
+the event loop and program works.
 
 
