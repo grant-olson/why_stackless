@@ -6,4 +6,162 @@ Pre-emptive Multitasking
 Cooperative Multitasking
 ------------------------
 
+So far, we've seen stackless use a cooperative multitasking model.  There are
+three ways that the scheduler will switch between running tasklets:
+
+    1. The current active tasklet ends when its callable returns.
+
+    2. The current active tasklet reschedules itself by calling
+       stackless.schedule()
+
+    3. The current active tasklet sends a message to a waiting channel.
+
+In general, this is a good thing because your program runs in a predictible and
+understandible way.  But consider the following example::
+
+    Python 2.4.3 Stackless 3.1b3 060516 (#69, May  3 2006, 11:46:11) [MSC v.1310 32
+    bit (Intel)] on win32
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import stackless
+    >>>
+    >>> def infinite_loop():
+    ...     while 1:
+    ...             pass
+    ...     stackless.schedule()
+    ...
+    >>> def another_tasklet():
+    ...     print "got to another tasklet"
+    ...
+    >>>
+    >>> stackless.tasklet(infinite_loop)()
+    <stackless.tasklet object at 0x00A45A70>
+    >>> stackless.tasklet(another_tasklet)()
+    <stackless.tasklet object at 0x00A45AB0>
+    >>>
+    >>> stackless.run()
+
+The infinite loop in the first tasklet will prevent any other tasklets from
+running.  This is known as a **deadlock**.  Of course this example is
+intentionally contrived, but in real life complex code may create a deadlock
+without the software developer even realizing it.
+
+------------------------
+Pre-emptive multitasking
+------------------------
+
+Stackless provides the ability write a simple pre-emptive multitasking system.
+stackless.run() accepts an optional parameter that tells it how many
+instructions should be executed.  If this parameter is provided, and the
+instruction count is reached in the middle of a tasklet, tasklet execution is
+halted and the running tasklet is returned.  It is important to note that when
+the tasklet is returned, it is removed from the runnables queue and must be
+re-inserted if you wish to continue running it.
+
+Based on this, the generic code to create a pre-emptive run() loop is::
+
+    def preemptive(instructionCount=1000):
+        while stackless.getruncount() > 1:
+            t = stackless.run(instructionCount)
+            if t: t.insert()
+
+Remember that the main tasklet is always runnable, that is why this code loops
+until the runcount == 1 instead of 0.  Within the loop, we run the appropriate
+number of instructions, and reschedule any tasklet that may have been returned.
+
+If we run the code and example from above we get this::
+
+    >>> stackless.tasklet(infinite_loop)()
+    <stackless.tasklet object at 0x00A45830>
+    >>> stackless.tasklet(another_tasklet)()
+    <stackless.tasklet object at 0x00A45C70>
+    >>>
+    >>> preemptive()
+    got to another tasklet
+
+In this case, other tasklets will now run, but we haven't done anything to
+correct the infinite loop.
+
+Nondeterminism
+==============
+
+If pre-emptive multitasking is so great and prevents deadlocks, why doesn't stackless use it by default? Because it introduces nondeterminism.  With cooperative multitasking, tasklet switching happens explicitly in a predictible manner.  A developer can trace the path of code execution by reading it.  With pre-emptive multitasking, execution is nondeterminsitic.
+
+Consider the following example::
+
+    >>> def looping_tasklet(loopCount):
+    ...     for i in range(loopCount):
+    ...             pass
+    ...     print "DONE", loopCount
+    ...
+    >>> stackless.tasklet(looping_tasklet)(1000)
+    <stackless.tasklet object at 0x00A45830>
+    >>> stackless.tasklet(looping_tasklet)(1001)
+    <stackless.tasklet object at 0x00A45AB0>
+    >>> stackless.tasklet(looping_tasklet)(1002)
+    <stackless.tasklet object at 0x00A45BF0>
+    >>> stackless.tasklet(looping_tasklet)(1003)
+    <stackless.tasklet object at 0x00A45B70>
+    >>>
+    >>> stackless.run()
+    DONE 1000
+    DONE 1001
+    DONE 1002
+    DONE 1003
+    >>>
+
+It should be obvious what the output will be before the code is even run.  Now let's ttry the same thing with pre-emtive multitasking and different instruction counts::
+
+    >>> def preemptive_loop_test(instructionCount):
+    ...     stackless.tasklet(looping_tasklet)(1000)
+    ...     stackless.tasklet(looping_tasklet)(1001)
+    ...     stackless.tasklet(looping_tasklet)(1002)
+    ...     stackless.tasklet(looping_tasklet)(1003)
+    ...     preemptive(instructionCount)
+    ...
+    >>> preemptive_loop_test(1000)
+    DONE 1000
+    DONE 1001
+    DONE 1002
+    DONE 1003
+    >>> preemptive_loop_test(3)
+    DONE 1000
+    DONE 1001
+    DONE 1002
+    DONE 1003
+    >>> preemptive_loop_test(5)
+    DONE 1000
+    DONE 1002
+    DONE 1003
+    DONE 1001
+    >>> preemptive_loop_test(10)
+    DONE 1000
+    DONE 1001 DONE 1002
+    DONE 1003
+    
+    >>>
+
+Note that the output appears in a different order each time.  In one case, we
+even interupt a tasklet after it's printed "DONE 1001" but before it's printed
+a newline!  This is because the statement **print "DONE",x** translates into
+multiple bytecode instructions as counted by run()'s instruction count.  This
+can obviously lead to unpredicable reuslts in you program, especially if
+multiple tasklets are modifying the same data structure.
+
+Mutexes
+=======
+
+The term mutex is short for mutual exclusion.  As we've seen above, preemtive
+multitasking can interrupt tasklets in an unpredicible manner.  In addition to
+the fact that pre-emptive multitasking can occur in the middle of a line of
+code, there are also cases where the semantics of an atomic operation span more
+than one line of code.
+
+For example, when you transfer funds from your checking account to your savings
+account, a credit must be performed on one account and a debit must be
+performed on another.  If not, two competing preemtive tasklets might put more
+money into an account than they should be able to.  Requiring that both
+operations occur without interruption creates a **critical section**.
+
+TODO: Code sample.
+
 
