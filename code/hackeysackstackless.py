@@ -35,8 +35,17 @@ class hackysacker:
 
 def debugPrint(x):
     if debug:print x
+
+debug = 5
+hackysackers = 5
+turns = 1
+
+def runit(hs=5,ts=5,dbg=1):
+    global hackysackers,turns,debug
+    hackysackers = hs
+    turns = ts
+    debug = dbg
     
-def runit():
     hackysacker.counter = 0
     circle = []
     one = hackysacker('1',circle)
@@ -52,7 +61,9 @@ def runit():
         pass
     
 
-debug = 0
-hackysackers = 100000
-turns = 10000
+if __name__ == "__main__":
+    runit()
+
+
+
 

@@ -3,8 +3,8 @@ Why Stackless: or Concurrent Programming with Stackless Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :Author:    Grant Olson
-:Revision:  $Revision$
 :Date:      $Date$
+
 
 .. contents:: Table of Contents
 

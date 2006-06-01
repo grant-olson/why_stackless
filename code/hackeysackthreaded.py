@@ -17,7 +17,10 @@ class hackysacker:
         hackysacker.counter += 1
         if hackysacker.counter >= turns:
             while self.circle:
-                self.circle.pop().messageQueue.put('exit')
+                hs = self.circle.pop()
+                if hs is not self:
+                    hs.messageQueue.put('exit')
+            sys.exit()
 
     def messageLoop(self):
         while 1:
@@ -37,7 +40,16 @@ def debugPrint(x):
     if debug:
         print x
 
-def runit():
+debug=1
+hackysackers=5
+turns = 5
+
+def runit(hs=10,ts=10,dbg=1):
+    global hackysackers,turns,debug
+    hackysackers = hs
+    turns = ts
+    debug = dbg
+    
     hackysacker.counter= 0
     circle = []
     one = hackysacker('1',circle)
@@ -47,11 +59,16 @@ def runit():
 
     one.messageQueue.put(one)
 
-    while circle:
+    try:
+        while circle:
+            pass
+    except:
+        #sometimes we get a phantom error on cleanup.
         pass
 
 
-debug=0
-hackysackers=10000
-turns = 1000
+if __name__ == "__main__":
+    runit(dbg=1)
+
+
 

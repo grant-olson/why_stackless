@@ -1,5 +1,9 @@
 import stackless
-##########
+
+
+#
+# 'Sleep helper functions
+# 
 
 sleepingTasklets = []
 sleepingTicks = 0
@@ -29,7 +33,9 @@ def ManageSleepingTasklets():
 
 stackless.tasklet(ManageSleepingTasklets)()
 
-##########
+#
+# Factory implementation
+#
 
 class storeroom:
     def __init__(self,name,product,unit,count):
@@ -130,9 +136,6 @@ legAssembler = assembler("leg Assembler",torsoMolder,legMolder,rivetStoreroom,2)
 armAssembler = assembler("arm Assembler", armMolder,legAssembler,rivetStoreroom,2)
 torsoAssembler = assembler("torso Assembler", headMolder,armAssembler,rivetStoreroom,3)
 
-components = [rivetStoreroom, plasticStoreroom, armMolder, legMolder, headMolder, torsoMolder,
-              legAssembler, armAssembler, torsoAssembler]
-
 def pause():
     while 1:
         raw_input("Press <ENTER> to continue...")
@@ -144,3 +147,5 @@ stackless.tasklet(pause)()
 def run():
     stackless.run()
     
+if __name__ == "__main__":
+    run()

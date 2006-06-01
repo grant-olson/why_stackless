@@ -1,22 +1,3 @@
-"""
-
-assembly line
-
-Storerooms
-    plastic pellets - per pound
-    rivits - #
-
-Injection molders:
-    Torso
-    Head
-    Arms
-    Legs
-    
-Assemblers:
-    Add legs
-    Add arms
-    Add heads
-"""
 
 class storeroom:
     def __init__(self,name,product,unit,count):
@@ -76,9 +57,9 @@ class injectionMolder:
             self.time -= 1
                 
 
-armMolder = injectionMolder("arm Molder", "arms",plasticStoreroom,0.2,5)
+armMolder = injectionMolder("arm Molder", "arms",plasticStoreroom,0.2,6)
 legMolder = injectionMolder("leg Molder", "leg",plasticStoreroom,0.2,5)
-headMolder = injectionMolder("head Molder","head",plasticStoreroom,0.1,5)
+headMolder = injectionMolder("head Molder","head",plasticStoreroom,0.1,4)
 torsoMolder = injectionMolder("torso Molder","torso",plasticStoreroom,0.5,10)
 
 
@@ -133,8 +114,14 @@ components = [rivetStoreroom, plasticStoreroom, armMolder, legMolder, headMolder
               legAssembler, armAssembler, torsoAssembler]
 
 def run():
-    for component in components:
-        component.run()
-
+    while 1:
+        for component in components:
+            component.run()
+        raw_input("Press <ENTER> to continue...")
+        print "\n\n\n"
         
+
+if __name__ == "__main__":
+    run()
+
 

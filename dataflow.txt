@@ -226,4 +226,33 @@ what it is doing, and doesn't worry about the details of how it gets done.  It
 lets the software developer concentrate on how the factory works, and not how
 the event loop and program works.
 
+------------
+Pushing Data
+------------
 
+In the case of the factory, we were 'pulling' data.  Each component asked for
+the parts it needed and waited until they arrived.  We could also 'push'
+information so that one component in a system propigates its changes forward to
+another component.  This is also known as an event driven approach.
+
+Lets try pushing the data by simulating a simple digital circuit: in
+particular, a half-adder.
+
+Function boxes
+==============
+
+We need some basic building blocks to build the half adder.  Each component has
+one ore more inputs, and one output.  The settings on the inputs control the
+setting on the output.
+
+And Gate
+--------
+
+Or Gate
+-------
+
+Inverter
+--------
+
+.. include:: code\\adder.py
+   :literal:
