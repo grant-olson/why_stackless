@@ -4,7 +4,7 @@ debug=0
 def debugPrint(x):
     if debug:print x
 
-class Listener:
+class EventHandler:
     def __init__(self,*outputs):
         if outputs==None:
             self.outputs=[]
@@ -33,9 +33,9 @@ class Listener:
     def __call__(self,val):
         self.channel.send(val)
 
-class Input(Listener):
+class Switch(EventHandler):
     def __init__(self,initialState=0,*outputs):
-        Listener.__init__(self,*outputs)
+        EventHandler.__init__(self,*outputs)
         self.state = initialState
 
     def processMessage(self,val):
@@ -45,18 +45,18 @@ class Input(Listener):
     def notify(self,output):
         output((self,self.state))
 
-class Reporter(Listener):
+class Reporter(EventHandler):
     def __init__(self,msg="%(sender)s send message %(value)s"):
-        Listener.__init__(self)
+        EventHandler.__init__(self)
         self.msg = msg
         
     def processMessage(self,msg):
         sender,value=msg
         print self.msg % {'sender':sender,'value':value}
 
-class Inverter(Listener):
+class Inverter(EventHandler):
     def __init__(self,input,*outputs):
-        Listener.__init__(self,*outputs)
+        EventHandler.__init__(self,*outputs)
         self.input = input
         input.registerOutput(self)
         self.state = 0
@@ -72,9 +72,9 @@ class Inverter(Listener):
     def notify(self,output):
         output((self,self.state))
 
-class AndGate(Listener):
+class AndGate(EventHandler):
     def __init__(self,inputA,inputB,*outputs):
-        Listener.__init__(self,*outputs)
+        EventHandler.__init__(self,*outputs)
 
         self.inputA = inputA
         self.inputAstate = inputA.state
@@ -104,12 +104,11 @@ class AndGate(Listener):
         debugPrint("AndGate's new state => %s" % self.state)
         
     def notify(self,output):
-        print "!!!ANDNOTIFIES", self , self.outputs, output
         output((self,self.state))
 
-class OrGate(Listener):
+class OrGate(EventHandler):
     def __init__(self,inputA,inputB,*outputs):
-        Listener.__init__(self,*outputs)
+        EventHandler.__init__(self,*outputs)
 
         self.inputA = inputA
         self.inputAstate = inputA.state
@@ -144,30 +143,29 @@ class OrGate(Listener):
 
 if __name__ == "__main__":
     print "\n\n\n-----------"
-    input = Input()
+    input = Switch()
     inverterA = Inverter(input)
     inverterB = Inverter(inverterA,Reporter("Result => %(value)s"))
     input(1)
     print '----------'
     input (0)
     print "\n\n!!!!!!!!!!!!"
-    inputA = Input()
-    inputB = Input()
+    inputA = Switch()
+    inputB = Switch()
     reporter=Reporter("AndGate Result => %(value)s")
     andGate=AndGate(inputA,inputB,reporter)
     inputA(1)
     inputB(1)
 
     # half adder
-    import adder
-    inputA = adder.Input()
-    inputB = adder.Input()
-    result = adder.Reporter("Result = %(value)s |%(sender)s|")
-    carry = adder.Reporter("Carry = %(value)s")
-    andGateA = adder.AndGate(inputA,inputB,carry)
-    orGate = adder.OrGate(inputA,inputB)
-    inverter = adder.Inverter(andGateA)
-    andGateB = adder.AndGate(orGate,inverter,result)
+    inputA = Switch()
+    inputB = Switch()
+    result = Reporter("Result = %(value)s")
+    carry = Reporter("Carry = %(value)s")
+    andGateA = AndGate(inputA,inputB,carry)
+    orGate = OrGate(inputA,inputB)
+    inverter = Inverter(andGateA)
+    andGateB = AndGate(orGate,inverter,result)
     inputA(1)
     inputB(1)
     inputB(0)
