@@ -190,6 +190,9 @@ Now I'm trying to keep the code simple, so you'll have to take my word for it, b
 Summary
 -------
 
-Hopefully, I've successfully demonstrated that threadlets run at least an order of magnitude faster than OS threads, and scale much better.
+Hopefully, I've successfully demonstrated that threadlets run at least an order
+of magnitude faster than OS threads, and scale much better.  The general wisdom
+with OS threads is (1) don't use them, and (2) if you have to use as little as
+possible.  Stackless' threadlets free us from these constraints.
 
 

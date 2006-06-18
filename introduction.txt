@@ -6,56 +6,64 @@ Introduction
 Why Stackless
 -------------
 
-Stackless python is is a modified version of the standard Python interpreter
-that removes the C stack.  This allows you to create lightweight
-highperformance microthreads that allow you to model concurrency in a much more
-natural way than you can in standard python, as well as most conventional
-programming languages out there today.
+According the the stackless website at http://www.stackless.org::
 
-At this point, you're probably saying to yourself, "La-te-FRIGGIN-da!
-Microthreads!  Big friggin' deal! Why should I care?"
+    Stackless Python is an enhanced version of the Python programming language.
+    It allows programmers to reap the benefits of thread-based programming
+    without the performance and complexity problems associated with
+    conventional threads. The microthreads that Stackless adds to Python are a
+    cheap and lightweight convenience which can if used properly, give the
+    following benefits:
 
-There are two primary reasons that I think you should care:
+      + Improved program structure.
+      
+      + More readable code.
+      
+      + Increased programmer productivity.
 
+Which acts as a very consise definition of stackless python, but what does that
+mean to us? It means that stackless provides the tools to model concurrency
+more easily than you can currently do in most conventional languages.  We're
+not just talking about Python itself, but Java, C/C++ and other languages as
+well.  Although there are some langagues out there that provide concurrency
+features, they are either academically oriented languages (such as Mozart/Oz)
+or lesser used/special purpose professional languages (such as erlang).  With
+stackless, you get concurrency in addition to all of the advantages of python
+itself.
+
+This of course begs the question: Why concurrency?
 
 The Real World is Concurrent
 ============================
 
 The real world is 'concurrent'.  It is made up of a bunch of things (or
 **actors**) that interact with each other in a loosely coupled way with limited
-knowledge of each other.  Although object-oriented programming does a good job
-modelling object, it doesn't do such a good job modeling objects interactions
-over a period of time.  You can do a reasonably good job simulating this with
-OO, but the real world runs continuously.  It doesn't call a run() method every
-1/10 of a second.  Stackless python provides the tools to model these
-interactions in a better way.
+knowledge of each other.  One of the purported benefits of object-oriented
+programming is that objects model things in the real world.  To a certain
+extent, this is true.  Object-oriented programming does a good job modelling
+individual objects, but it doesn't do a very good job representing interactions
+between these individual objects in a realistic way.
 
-
-Concurrency might, just might, be the next big paradigm
-=======================================================
+Concurrency might, just might, be the next big programming paradigm
+===================================================================
 
 I personally believe that concurrency is the next big paradigm in the software
-world.  In 1985, people were struggling with OO concepts.  OO seemed like this
-big monsterous nonsensical thing.  As adoption grew, OO started to make more
-sense and has become part of the 'collective conciesness' of professional
-software developers.  I beleive the same thing will happen with concurrency
-over the next 10 or so years.
-
-As programs become more complex and resource intensive, we can no longer count
-on Moore's Law providing us with faster processors every year.  Current
-performance increases in commodity PC's are comming from multi-core and
+world.  As programs become more complex and resource intensive, we can no
+longer count on Moore's Law providing us with faster processors every year.
+Current performance increases in commodity PC's are comming from multi-core and
 multi-cpu machines.  Once these are maxxed out for performance, software
 developers are moving to distributed models where multiple computers interact
 with each other to create a high powered application (think think GooglePlex).
 To take advantage of both multi-core machines and distributed programming,
 concurrency quickly becomes the defacto standard way of doing things.
 
-------------
-The tutorial
-------------
+--------------------
+Installing Stackless
+--------------------
 
-This tutorial works by developing real code examples iteratively to illustrate
-the benefits of stackless python.  A basic understanding of python is expected.
-To get the most out of it, you should type out the code examples and run them.  Changes are sometimes shown in a diff format.
-
+Details for installing stackless can be found on the stackless website.
+Currently, linux users can get the source from subversion and perform a build.
+For windows users, there is an available .zip file that has to be extracted
+into an existing installation of python.  The rest of this tutorial assumes
+that you have a working installation of stackless python.
 

@@ -2,22 +2,12 @@
 Getting Started With Stackless
 ==============================
 
-----------
-Installing
-----------
+This chapter provides a brief introduction to stackless' primitives.  Later
+chapters will build on these primitives to show more practical functionality.
 
-Windows
-=======
-
-Linux
-=====
-
------------
-Quick Start
------------
-
+--------
 Tasklets
-========
+--------
 
 Tasklets are the primary building block for stackless.  You create a tasklet by
 feeding it any python callable (usually a function or class method).  This
@@ -47,13 +37,9 @@ demonstration::
 
 Note that the tasklets queue up and don't run until you call *stackless.run()*.
 
-The main tasklet
-----------------
-
-TODO: Why do we care about this? Should we cover it here?
-
+-------------
 The Scheduler
-=============
+-------------
 
 The scheduler controls the order in which the tasklets are run.  If you just
 create a bunch of tasklets, they will run in the order they are created.  In
@@ -99,8 +85,9 @@ tasklet to run.  One the last tasklet has run, the first picks up where it left
 off.  This continues until all active tasklets have finished running.  This is
 how we achieve cooperative multitasking with stackless.
 
+--------
 Channels
-========
+--------
 
 Channels allow you to send information between tasklets.  This accomplished two
 things:
@@ -200,5 +187,4 @@ That covers a majority of stackless' functionality.  Doesn't seem like much
 does it?  We dealt with a couple of objects and maybe 4 or 5 function calls.
 By using this small API as our building blocks, we can start to do some really
 interesting things.
-
 

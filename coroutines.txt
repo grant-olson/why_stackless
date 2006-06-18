@@ -100,4 +100,15 @@ uses the same memory whether it runs for 1 minute or a day.  If you examine
 memory usage of the recursive vesion, you'll see that it grows quickly before
 the program blows up.
 
+-------
+Summary
+-------
+
+If you recall, eariler I mentioned that experience programmers would
+immediately see a problem with the recursive version of the code.  But
+honestly, there's not 'computer science' issue that would prevent this code
+from working.  It is simply a minor implmentation detail that you're stuck with
+in most conventional languages.  In some sense, experienced programmers have
+simply been brainwashed to accept this as a problem.  Stackless helps remove
+this perceived problem.
 
