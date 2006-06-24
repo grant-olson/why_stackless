@@ -1,0 +1,103 @@
+======
+Actors
+======
+
+In the actor model, everything is an actor (duh!).  Actors are objects (in the
+generic sense, not necessisarily the OO sense) that can:
+
+    + Recieve messages from other actors.
+
+    + Process the received messages as they see fit.
+
+    + Send messages to other actors.
+
+    + Create new Actors.
+
+Actors do not have any direct access to other actors.  All communication is
+accomplished via message passing.  This provides a rich model to simulate
+real-world objects that are loosely-coupled and have limited knowledge of each
+others internals. 
+
+If we're going to create a simulation, we might as well simulate...
+
+--------------
+Killer Robots!
+--------------
+
+Actor Base Class
+================
+
+In this example, we'll configure a small world where robots can move around and
+fight utilizing the actor model.  To begin with, let's define a base class for
+all of our actors:
+
+.. include:: code\\actors.py
+   :literal:
+   :starting-line: 7
+   :ending-line: 18
+
+By default, an actor creates a channel to accept messages, assigns a method to
+process the messages, and kicks off a loop to dispatch accepted messages to the
+processing method.  The default processor simply prints the message that it
+recieved.  That's really all we need to implement the actor model.
+
+World class
+===========
+
+.. include: code\\actors.py
+   :literal:
+   :starting-line: 120
+   :ending-line: 152
+
+A Simple Robot
+==============
+
+
+Detour: pyGame
+==============
+
+So far we've been using debug print statements to illustrate the way things are
+working in our sample programs.  I tried to do this to keep the code simple and
+understandible, but print statements only go so far.  We were already pushing
+it in the section on Dataflow, but the code in this section is getting too
+complex to even try to represent it with printed output.
+
+I decided to use pyGame to create a simple visualization engine.  Although
+descriptions of pyGame internals are outside the scope of this tutorial,
+operation is relatively straight-forward.  When the display actor receives a
+WORLD_STATE message, it places the appropriate actors and updates the disply.
+Luckily, we are able to isolate all of the pygame code into a single actor, so
+the rest of the code should remain 'unpolluted'  and understandible without
+knowing or caring how pygame renders the display:
+
+.. include:: code\\actors.py
+   :literal:
+   :starting-line: 74
+   :ending-line: 118
+
+This takes the WORLD_STATE and creates a display based on that.
+
+Now we have enough to run the first version of the program.
+
+------------------------------------
+Another Detour: Simulation Mechanics
+------------------------------------
+
+As another detour, we need to implement some game (er... I mean simulation)
+mechanics.  Strictly speaking, these mechanics don't have anything to do with
+the actor model.  However, to create a rich and realisitic simulation we need
+to get these mechanics out of the way.  This section will detail what we are
+trying to accomplish and how we will accomplish it.  After that, our
+environment to toy around with actors will be much more usable.
+
+.. include:: code\\actors2.py
+   :literal:
+
+-------------------------------------
+Back to the actors: Let's get crazy
+-------------------------------------
+
+.. include:: code\\actors3.py
+   :literal:
+
+
