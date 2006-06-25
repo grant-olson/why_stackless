@@ -1,5 +1,43 @@
 import stackless
 
+
+#
+# 'Sleep helper functions
+# 
+
+sleepingTasklets = []
+sleepingTicks = 0
+
+def Sleep(secondsToWait):
+    channel = stackless.channel()
+    endTime = sleepingTicks + secondsToWait
+    sleepingTasklets.append((endTime, channel))
+    sleepingTasklets.sort()
+    # Block until we get sent an awakening notification.
+    channel.receive()
+
+def ManageSleepingTasklets():
+    global sleepingTicks
+    while 1:
+        if len(sleepingTasklets):
+            endTime = sleepingTasklets[0][0]
+            while endTime <= sleepingTicks:
+                channel = sleepingTasklets[0][1]
+                del sleepingTasklets[0]
+                # We have to send something, but it doesn't matter 
+                # what as it is not used.
+                channel.send(None)
+                endTime = sleepingTasklets[0][0] # check next
+        sleepingTicks += 1
+        print "1 second passed"
+        stackless.schedule()
+
+stackless.tasklet(ManageSleepingTasklets)()
+
+#
+# Factory implementation
+#
+
 class storeroom:
     def __init__(self,name,product,unit,count):
         self.product = product
@@ -8,10 +46,12 @@ class storeroom:
         self.name = name
 
     def get(self,count):
-        if count > self.count:
-            raise RuntimeError("Not enough %s" % self.product)
-        else:
-            self.count -= count
+        while count > self.count: #reschedule until we have enough
+            print "%s doesn't have enough %s to deliver yet" % (self.name, 
+                                                                self.product)
+            stackless.schedule()
+        self.count -= count
+        return count
 
         return count            
 
@@ -30,34 +70,31 @@ class injectionMolder:
         self.plasticSource = plasticSource
         self.plasticPerPart = plasticPerPart
         self.timeToMold = timeToMold
-        self.items = 0
         self.plastic = 0
-        self.time = -1
+        self.items = 0
         self.name = name
         stackless.tasklet(self.run)()
 
     def get(self,items):
-        if items > self.items:
-            return 0
-        else:
-            self.items -= items
-            return items
+        while items > self.items: #reschedule until we have enough
+            print "%s doesn't have enough %s to deliver yet" % (self.name,
+                                                                self.partName)
+            stackless.schedule()
+        self.items -= items
+        return items
 
     def run(self):
         while 1:
-            if self.time == 0:
-                self.items += 1
-                print "%s finished making part" % self.name
-                self.time -= 1
-            elif self.time < 0:
-                print "%s starts making new part %s" % (self.name,self.partName)
-                if self.plastic < self.plasticPerPart:
-                    print "%s getting more plastic"
-                    self.plastic += self.plasticSource.get(self.plasticPerPart * 10)
-                self.time = self.timeToMold
-            else:
-                print "%s molding for %s more seconds" % (self.partName, self.time)
-                self.time -= 1
+            print "%s starts making new part %s" % (self.name,self.partName)
+            if self.plastic < self.plasticPerPart:
+                print "%s getting more plastic"
+                self.plastic += self.plasticSource.get(self.plasticPerPart * 10)
+            self.plastic -= self.plasticPerPart
+            Sleep(self.timeToMold)
+            print "%s done molding after %s seconds" % (self.partName,
+                                                        self.timeToMold)
+            self.items += 1
+            print "%s finished making part" % self.name
             stackless.schedule()
                 
 
@@ -77,48 +114,32 @@ class assembler:
         self.itemB = 0
         self.items = 0
         self.rivets = 0
-        self.time = -1
         self.name = name
         stackless.tasklet(self.run)()
 
     def get(self,items):
-        if items > self.items:
-            return 0
-        else:
-            self.items -= items
-            return items
-
+        while items > self.items: #reschedule until we have enough
+            print "Don't have a %s to deliver yet" % (self.name)
+            stackless.schedule()
+        self.items -= items
+        return items
+    
     def run(self):        
         while 1:
-            if self.time == 0:
-                self.items += 1
-                print "%s finished assembling part" % self.name
-                self.time -= 1
-            elif self.time < 0:
-                print "%s starts assembling new part" % self.name
-                if self.itemA < 1:
-                    print "%s Getting item A" % self.name
-                    self.itemA += self.partAsource.get(1)
-                    if self.itemA < 1:
-                        print "%s waiting for item A" % self.name
-                elif self.itemB < 1:
-                    print "%s Getting item B" % self.name
-                    self.itemB += self.partBsource.get(1)
-                    if self.itemB < 1:
-                        print "%s waiting for item B" % self.name
-                print "%s starting to assemble" % self.name
-                self.time = self.timeToAssemble
-            else:
-                print "%s assembling for %s more seconds" % (self.name, self.time)
-                self.time -= 1
+            print "%s starts assembling new part" % self.name
+            self.itemA += self.partAsource.get(1)
+            self.itemB += self.partBsource.get(1)
+            print "%s starting to assemble" % self.name
+            Sleep(self.timeToAssemble)
+            print "%s done assembling after %s" % (self.name, self.timeToAssemble)
+            self.items += 1
+            print "%s finished assembling part" % self.name
             stackless.schedule()
             
 legAssembler = assembler("leg Assembler",torsoMolder,legMolder,rivetStoreroom,2)
 armAssembler = assembler("arm Assembler", armMolder,legAssembler,rivetStoreroom,2)
-torsoAssembler = assembler("torso Assembler", headMolder,armAssembler,rivetStoreroom,3)
-
-components = [rivetStoreroom, plasticStoreroom, armMolder, legMolder, headMolder, torsoMolder,
-              legAssembler, armAssembler, torsoAssembler]
+torsoAssembler = assembler("torso Assembler", headMolder,armAssembler,
+                            rivetStoreroom,3)
 
 def pause():
     while 1:
@@ -131,3 +152,5 @@ stackless.tasklet(pause)()
 def run():
     stackless.run()
     
+if __name__ == "__main__":
+    run()

@@ -142,21 +142,6 @@ class OrGate(EventHandler):
 
 
 if __name__ == "__main__":
-    print "\n\n\n-----------"
-    input = Switch()
-    inverterA = Inverter(input)
-    inverterB = Inverter(inverterA,Reporter("Result => %(value)s"))
-    input(1)
-    print '----------'
-    input (0)
-    print "\n\n!!!!!!!!!!!!"
-    inputA = Switch()
-    inputB = Switch()
-    reporter=Reporter("AndGate Result => %(value)s")
-    andGate=AndGate(inputA,inputB,reporter)
-    inputA(1)
-    inputB(1)
-
     # half adder
     inputA = Switch()
     inputB = Switch()
