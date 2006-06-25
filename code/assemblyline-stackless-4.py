@@ -24,7 +24,8 @@ def ManageSleepingTasklets():
             while endTime <= sleepingTicks:
                 channel = sleepingTasklets[0][1]
                 del sleepingTasklets[0]
-                # We have to send something, but it doesn't matter what as it is not used.
+                # We have to send something, but it doesn't matter 
+                # what as it is not used.
                 channel.send(None)
                 endTime = sleepingTasklets[0][0] # check next
         sleepingTicks += 1
@@ -46,7 +47,8 @@ class storeroom:
 
     def get(self,count):
         while count > self.count: #reschedule until we have enough
-            print "%s doesn't have enough %s to deliver yet" % (self.name, self.product)
+            print "%s doesn't have enough %s to deliver yet" % (self.name, 
+                                                                self.product)
             stackless.schedule()
         self.count -= count
         return count
@@ -75,7 +77,8 @@ class injectionMolder:
 
     def get(self,items):
         while items > self.items: #reschedule until we have enough
-            print "%s doesn't have enough %s to deliver yet" % (self.name, self.partName)
+            print "%s doesn't have enough %s to deliver yet" % (self.name,
+                                                                self.partName)
             stackless.schedule()
         self.items -= items
         return items
@@ -88,7 +91,8 @@ class injectionMolder:
                 self.plastic += self.plasticSource.get(self.plasticPerPart * 10)
             self.plastic -= self.plasticPerPart
             Sleep(self.timeToMold)
-            print "%s done molding after %s seconds" % (self.partName, self.timeToMold)
+            print "%s done molding after %s seconds" % (self.partName,
+                                                        self.timeToMold)
             self.items += 1
             print "%s finished making part" % self.name
             stackless.schedule()
@@ -134,7 +138,8 @@ class assembler:
             
 legAssembler = assembler("leg Assembler",torsoMolder,legMolder,rivetStoreroom,2)
 armAssembler = assembler("arm Assembler", armMolder,legAssembler,rivetStoreroom,2)
-torsoAssembler = assembler("torso Assembler", headMolder,armAssembler,rivetStoreroom,3)
+torsoAssembler = assembler("torso Assembler", headMolder,armAssembler,
+                            rivetStoreroom,3)
 
 def pause():
     while 1:

@@ -69,19 +69,22 @@ class world(actor):
         else:
             print '!!!! WORLD GOT UNKNOWN MESSAGE ' , args
             
-World = world()
+World = world().channel
 
 class display(actor):
-    def __init__(self):
+    def __init__(self,world=World):
         actor.__init__(self)
+
+        self.world = World
 
         self.icons = {}
         pygame.init()
 
         window = pygame.display.set_mode((496,496))
         pygame.display.set_caption("Actor Demo")
-        
-        World.channel.send((self.channel,"JOIN",self.__class__.__name__, (-1,-1)))
+
+        joinMsg = (self.channel,"JOIN",self.__class__.__name__, (-1,-1))
+        self.world.send(joinMsg)
 
     def defaultMessageAction(self,args):
         sentFrom, msg, msgArgs = args[0],args[1],args[2:]
@@ -96,6 +99,7 @@ class display(actor):
         else:
             iconFile = os.path.join("data","%s.bmp" % iconName)
             surface = pygame.image.load(iconFile)
+            surface.set_colorkey((0xf3,0x0a,0x0a))
             self.icons[iconName] = surface
             return surface
 
@@ -115,21 +119,20 @@ class display(actor):
             screen.blit(pygame.transform.rotate(self.getIcon(item[1][0]),-item[1][2]), item[1][1])
         pygame.display.flip()
 
-Display = display()
+display()
 
 class basicRobot(actor):
-    def __init__(self,location=(0,0),angle=135,velocity=1):
+    def __init__(self,location=(0,0),angle=135,velocity=1,world=World):
         actor.__init__(self)
         self.location = location
         self.angle = angle
         self.velocity = velocity
+        self.world = world
         self.vector = self.vectorFromAngleAndVelocity()
-        World.channel.send((self.channel,"JOIN",self.__class__.__name__, self.location,self.angle,self.velocity))
 
-    def vectorFromAngleAndVelocity(self):
-        x = math.sin(math.radians(self.angle)) * self.velocity
-        y = math.cos(math.radians(self.angle)) * self.velocity
-        return x,y
+        joinMsg =(self.channel,"JOIN",self.__class__.__name__,
+                  self.location,self.angle,self.velocity)
+        self.world.send(joinMsg)
 
     def defaultMessageAction(self,args):
         sentFrom, msg, msgArgs = args[0],args[1],args[2:]
@@ -139,7 +142,10 @@ class basicRobot(actor):
             if self.angle >= 360:
                 self.angle -= 360
             self.vector = self.vectorFromAngleAndVelocity()
-            World.channel.send((self.channel, "UPDATE_VECTOR", self.angle,self.velocity))
+
+            updateMsg = (self.channel, "UPDATE_VECTOR",
+                         self.angle,self.velocity)
+            self.world.send(updateMsg)
         elif msg == "COLLISION":
             self.angle += 73
             if self.angle >= 360:
@@ -148,8 +154,8 @@ class basicRobot(actor):
         else:
             print "UNKNOWN MESSAGE", args
 
-BR = basicRobot(angle=135,velocity=5)
-BRtwo = basicRobot((464,0),angle=225,velocity=10)
+basicRobot(angle=135,velocity=5)
+basicRobot((464,0),angle=225,velocity=10)
 
     
 stackless.run()

@@ -20,7 +20,8 @@ class actor:
 
 class properties:
     def __init__(self,name,location=(-1,-1),angle=0,
-                 velocity=0,height=-1,width=-1,hitpoints=1,public=True):
+                 velocity=0,height=-1,width=-1,hitpoints=1,physical=True,
+                 public=True):
         self.name = name
         self.location = location
         self.angle = angle
@@ -29,10 +30,11 @@ class properties:
         self.width = width
         self.public = public
         self.hitpoints = hitpoints
+        self.physical = physical
 
 class worldState:
-    def __init__(self,framerate,time):
-        self.framerate = framerate
+    def __init__(self,updateRate,time):
+        self.updateRate = updateRate
         self.time = time
         self.actors = []
 
@@ -40,8 +42,8 @@ class world(actor):
     def __init__(self):
         actor.__init__(self)
         self.registeredActors = {}
-        self.framerate = 30
-        self.maxframerate = 30
+        self.updateRate = 30
+        self.maxupdateRate = 30
         stackless.tasklet(self.runFrame)()
 
     def testForCollision(self,x,y,item,otherItems=[]):
@@ -52,8 +54,12 @@ class world(actor):
         else:
             ax1,ax2,ay1,ay2 = x, x+item.width, y,y+item.height
             for item,bx1,bx2,by1,by2 in otherItems:
+                if self.registeredActors[item].physical == False: continue
                 for x,y in [(ax1,ay1),(ax1,ay2),(ax2,ay1),(ax2,ay2)]:
                     if x >= bx1 and x <= bx2 and y >= by1 and y <= by2:
+                        return item
+                for x,y in [(bx1,by1),(bx1,by2),(bx2,by1),(bx2,by2)]:
+                    if x >= ax1 and x <= ax2 and y >= ay1 and y <= ay2:
                         return item
             return None
 
@@ -68,21 +74,19 @@ class world(actor):
         actorPositions = []
         for actor in self.registeredActors.keys():
             actorInfo = self.registeredActors[actor]
-            if actorInfo.public:
+            if actorInfo.public and actorInfo.physical:
                 x,y = actorInfo.location
                 angle = actorInfo.angle
                 velocity = actorInfo.velocity
                 VectorX,VectorY = (math.sin(math.radians(angle)) * velocity,
                                    math.cos(math.radians(angle)) * velocity)
-                x += VectorX/self.framerate
-                y -= VectorY/self.framerate
+                x += VectorX/self.updateRate
+                y -= VectorY/self.updateRate
                 collision = self.testForCollision(x,y,actorInfo,actorPositions)
                 if collision:
                     #don't move
-                    self.registeredActors[actor].hitpoints -= 1
                     actor.send((self.channel,"COLLISION",actor,collision))
                     if collision and collision is not self.channel:
-                        self.registeredActors[collision].hitpoints -= 1
                         collision.send((self.channel,"COLLISION",actor,collision))
                 else:                        
                     actorInfo.location = (x,y)
@@ -93,7 +97,7 @@ class world(actor):
                                         actorInfo.location[1] + actorInfo.width))
 
     def sendStateToActors(self,starttime):
-        WorldState = worldState(self.framerate,starttime)
+        WorldState = worldState(self.updateRate,starttime)
         for actor in self.registeredActors.keys():
             if self.registeredActors[actor].public:
                 WorldState.actors.append( (actor, self.registeredActors[actor]) )
@@ -108,19 +112,19 @@ class world(actor):
             self.updateActorPositions()
             self.sendStateToActors(startTime)
             #wait
-            calculatedEndTime = startTime + 1.0/self.framerate
+            calculatedEndTime = startTime + 1.0/self.updateRate
 
             doneProcessingTime = time.clock()
-            percentUtilized =  (doneProcessingTime - startTime) / (1.0/self.framerate)
+            percentUtilized =  (doneProcessingTime - startTime) / (1.0/self.updateRate)
             if percentUtilized >= 1:
-                self.framerate -= 1
-                print "TOO MUCH LOWERING FRAME RATE: " , self.framerate
-            elif percentUtilized <= 0.6 and self.framerate < self.maxframerate:
-                self.framerate += 1
-                print "TOO MUCH FREETIME, RAISING FRAME RATE: " , self.framerate
+                self.updateRate -= 1
+                print "TOO MUCH LOWERING FRAME RATE: " , self.updateRate
+            elif percentUtilized <= 0.6 and self.updateRate < self.maxupdateRate:
+                self.updateRate += 1
+                print "TOO MUCH FREETIME, RAISING FRAME RATE: " , self.updateRate
 
             while time.clock() < calculatedEndTime:
-                pass
+                stackless.schedule()
             startTime = calculatedEndTime
             
             stackless.schedule()
@@ -135,22 +139,25 @@ class world(actor):
             self.registeredActors[sentFrom].velocity = msgArgs[1]
         elif msg == "COLLISION":
             pass # known, but we don't do anything
+        elif msg == "KILLME":
+            self.registeredActors[sentFrom].hitpoints = 0
         else:
             print '!!!! WORLD GOT UNKNOWN MESSAGE ' , args
             
-World = world()
+World = world().channel
 
 class display(actor):
-    def __init__(self):
+    def __init__(self,world=World):
         actor.__init__(self)
 
+        self.world = World
         self.icons = {}
         pygame.init()
 
         window = pygame.display.set_mode((496,496))
         pygame.display.set_caption("Actor Demo")
         
-        World.channel.send((self.channel,"JOIN",
+        self.world.send((self.channel,"JOIN",
                             properties(self.__class__.__name__,
                                        public=False)))
 
@@ -190,21 +197,24 @@ class display(actor):
             screen.blit(pygame.transform.rotate(self.getIcon(item.name),-item.angle), item.location)
         pygame.display.flip()
 
-Display = display()
+display()
 
 class basicRobot(actor):
-    def __init__(self,location=(0,0),angle=135,velocity=1,hitpoints=20):
+    def __init__(self,location=(0,0),angle=135,velocity=1,
+                 hitpoints=20,world=World):
         actor.__init__(self)
         self.location = location
         self.angle = angle
         self.velocity = velocity
         self.hitpoints = hitpoints
-        World.channel.send((self.channel,"JOIN",
+        self.world = world
+        self.world.send((self.channel,"JOIN",
                             properties(self.__class__.__name__,
                                        location=self.location,
                                        angle=self.angle,
                                        velocity=self.velocity,
-                                       height=32,width=32,hitpoints=self.hitpoints)))
+                                       height=32,width=32,
+                                       hitpoints=self.hitpoints)))
 
     def defaultMessageAction(self,args):
         sentFrom, msg, msgArgs = args[0],args[1],args[2:]
@@ -212,15 +222,24 @@ class basicRobot(actor):
             for actor in msgArgs[0].actors:
                 if actor[0] is self: break
             self.location = actor[1].location
-            self.angle += 30.0 * (1.0 / msgArgs[0].framerate)
+            self.angle += 30.0 * (1.0 / msgArgs[0].updateRate)
             if self.angle >= 360:
                 self.angle -= 360
-            World.channel.send((self.channel, "UPDATE_VECTOR", self.angle,self.velocity))
+
+            updateMsg = (self.channel, "UPDATE_VECTOR", self.angle,
+                         self.velocity)
+            self.world.send(updateMsg)
         elif msg == "COLLISION":
             self.angle += 73.0
             if self.angle >= 360:
                 self.angle -= 360
             self.hitpoints -= 1
+            if self.hitpoints <= 0:
+                self.world.send((self.channel, "KILLME"))
+        elif msg == "DAMAGE":
+            self.hitpoints -= msgArgs[0]
+            if self.hitpoints <= 0:
+                self.world.send( (self.channel,"KILLME") )
         else:
             print "UNKNOWN MESSAGE", args
 

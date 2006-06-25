@@ -108,9 +108,11 @@ class assembler:
             
 legAssembler = assembler("leg Assembler",torsoMolder,legMolder,rivetStoreroom,2)
 armAssembler = assembler("arm Assembler", armMolder,legAssembler,rivetStoreroom,2)
-torsoAssembler = assembler("torso Assembler", headMolder,armAssembler,rivetStoreroom,3)
+torsoAssembler = assembler("torso Assembler", headMolder,armAssembler,
+                            rivetStoreroom,3)
 
-components = [rivetStoreroom, plasticStoreroom, armMolder, legMolder, headMolder, torsoMolder,
+components = [rivetStoreroom, plasticStoreroom, armMolder,
+                legMolder, headMolder, torsoMolder,
               legAssembler, armAssembler, torsoAssembler]
 
 def run():
