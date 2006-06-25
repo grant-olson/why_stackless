@@ -62,9 +62,11 @@ stack.  In most cases, each stack frame cleans itself up when a subroutine
 returns.  In those cases, the stack will clean itself up.  This is generally a
 good thing.  In C, the stack is the one area where the programmer doesn't have
 to do manual memory management.  Luckily, python programmers don't have to
-worry about memory managment, but it is a pain in the ass.  But since python
-itself is written in C, the implementors do have to worry about memory
-management.  Using the stack makes things convienent.
+worry about memory managment and the stack directly, but because the python
+interpreter itself is written in C, the implementors do have to worry about it.
+Using the stack makes things convienent.  That is until we start calling
+functions that never return, like the example above.  Then the stack actually
+starts working against the programmer, and exhausts available memory.
 
 ----------------
 Enter Coroutines
@@ -72,7 +74,8 @@ Enter Coroutines
 
 In this case, it's a little silly that the stack overflows.  *ping()* and
 *pong()* aren't really subroutines.  One isn't subordinate to the other.  They
-are *coroutines*, on equal footing, who communicate seamlessly with each other.
+are *coroutines*, on equal footing, who should be able communicate seamlessly
+with each other.
 
 ===== ===========================================================================
 Frame Stack
@@ -108,7 +111,8 @@ If you recall, eariler I mentioned that experience programmers would
 immediately see a problem with the recursive version of the code.  But
 honestly, there's not 'computer science' issue that would prevent this code
 from working.  It is simply a minor implmentation detail that you're stuck with
-in most conventional languages.  In some sense, experienced programmers have
-simply been brainwashed to accept this as a problem.  Stackless helps remove
-this perceived problem.
+in most conventional languages, because most conventional languages use a
+stack.  In some sense, experienced programmers have simply been brainwashed to
+accept this as an acceptible problem.  Stackless removes this perceived
+problem.
 

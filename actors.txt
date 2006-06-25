@@ -33,34 +33,101 @@ all of our actors:
 
 .. include:: code\\actors.py
    :literal:
-   :starting-line: 7
-   :ending-line: 18
+   :starting-line: 6
+   :ending-line: 17
 
 By default, an actor creates a channel to accept messages, assigns a method to
 process the messages, and kicks off a loop to dispatch accepted messages to the
 processing method.  The default processor simply prints the message that it
 recieved.  That's really all we need to implement the actor model.
 
+Message Format
+==============
+
+All messages will be sent in in the format of sender's channel, followed by a
+string containing the message name, followed by optional parameters.  Examples
+are::
+
+    (self.channel, "JOIN", (1,1) )
+    (self.channel, "COLLISION")
+    etc...
+
+Note that we're sending the sender's channel only instead of the entire self
+object.  In the actor model, all communication between actors needs to occur
+through message passing.  If we send *self*, then it would be too easy to cheat
+and access unknown information about the actor that sent a message. 
+
+In fact, you'll note that when we instantiate most of the actors in this
+chapter, we don't even assign them to a variable that is accessible to other
+actors.  We just create them and let them float around on thier own with
+limited knowledge of the environment.
+
 World class
 ===========
 
-.. include: code\\actors.py
+The world actor acts as the central hub through which all of the actors
+interact.  Other actors send a JOIN message to the world actor, and it tracks
+them.  Periodically, it sends out a WORLD_STATE message which contains
+information about all visible actors for their own internal processing:
+
+.. include:: code\\actors.py
    :literal:
-   :starting-line: 120
-   :ending-line: 152
+   :starting-line: 19
+   :ending-line: 71
+
+In addition to the message processing tasklet, the world actor spawns a
+seperate tasklet that runs the sendStateToActors() method.  This method has a
+loop which builds the information about the state of the world, and sends it to
+all actors.  This is the only message that the actors can rely on receiving.
+If necessary, they will respond to this message by sending some sort of UPDATE
+message back to the world.
+
+As part of the sendStateToActors() method, the world actor needs to update its
+internal record of the location of moving actors.  It creates a vector based on
+the angle and velocity of a moving actor, makes sure that the updated position
+doesn't collide with one of the walls of the world, and saves the new location.
+
+The defaultMessageAction() method processes the following known messages and
+ignores the rest:
+
+JOIN
+  Add an actor to the list of known actors in the world.  Parameters include
+  location, angle, and velocity of the actor.  A location of -1,-1 indicates
+  that the actor is not visible to other actors, such as the display actor
+  detailed below.
+
+UPDATE_VECTOR
+  Set a new angle and velocity for the actor that send the message.
+
+Lastly, a world actor is instantiated and its channel is saved in the global
+variable World so that other actors can send thier initial JOIN messages.
 
 A Simple Robot
 ==============
 
+We'll start off with a simple robot that moves at a constant velocity, rotating
+clockwise one degree as a response to each WORLD_STATE message.  In the event of
+a COLLISION with the world's walls, it will turn 73 degrees and attempt to
+continue moving forward.  Any other message is ignored.
+
+
+.. include:: code\\actors.py
+   :literal:
+   :starting-line: 123
+   :ending-line: 157
+
+Note that the constructor for the robot issues a join message to the world
+object to register it.  Other than that, hopefully the code is straightforward.
 
 Detour: pyGame
 ==============
 
 So far we've been using debug print statements to illustrate the way things are
 working in our sample programs.  I tried to do this to keep the code simple and
-understandible, but print statements only go so far.  We were already pushing
-it in the section on Dataflow, but the code in this section is getting too
-complex to even try to represent it with printed output.
+understandible, but at some point print statements become more confusing than
+illustrative.  We were already pushing it in the section on Dataflow, but the
+code in this section is getting too complex to even try to represent it with
+printed output.
 
 I decided to use pyGame to create a simple visualization engine.  Although
 descriptions of pyGame internals are outside the scope of this tutorial,
@@ -72,12 +139,18 @@ knowing or caring how pygame renders the display:
 
 .. include:: code\\actors.py
    :literal:
-   :starting-line: 74
-   :ending-line: 118
+   :starting-line: 73
+   :ending-line: 121
 
 This takes the WORLD_STATE and creates a display based on that.
 
-Now we have enough to run the first version of the program.
+.. note::
+   You will need to install pyGame in your python installation for the examples
+   in this section to work.  You will also want to download the optional icons
+   that I've created and unzip the directory under your source directory.
+
+Now we have enough to run the first version of the program.  Upon execution,
+two of the basicRobots will zoom around and bounce off of the walls.
 
 ------------------------------------
 Another Detour: Simulation Mechanics
@@ -90,14 +163,245 @@ to get these mechanics out of the way.  This section will detail what we are
 trying to accomplish and how we will accomplish it.  After that, our
 environment to toy around with actors will be much more usable.
 
+Actor Properties
+================
+
+As the information that the world actor needs to track becomes more complex,
+sending a bunch of individual arguments in the initial JOIN message becomes
+cumbersome.  To make this easier, we'll create a properites object to track the
+info.  This will be sent with the JOIN message instead of individiual
+parameters.
+
 .. include:: code\\actors2.py
    :literal:
+   :starting-line: 20
+   :ending-line: 31
+
+Note that the properties object is created to transfer information between
+actors.  We will not store a local copy with the actor that creates it.  If we
+did, the world actor would be able to modify the internal workings of actors
+instead of properly modifying them by sending messages.
+
+Collision Detection
+===================
+
+There are a few problems with the collision detection routine in the last
+version of the program.  The most obvious is that actors do not collide with
+each other.  The two robots bouncing around will just drive through each other
+instead of colliding.  The second problem is that we don't account for the size
+of the actor.  This is most obvious when the robots hit the right or bottom
+walls.  They appear to go halfway into the edge of the world before a COLLISION
+is registered.  I'm sure there are whole books on collision detection out
+there, but we'll try to stick with a reasonably simple version that works well
+enough for our purposes.
+
+First, we'll add height and width properties to each actor.  This allows us to
+create a 'bounding-box' around the actor.  The location property contains the
+top-left corner of the box, and adding the height and width to this value will
+create the bottom-right corner of the box.  This gives a reasonable
+approximation of the actor's physical dimensions.
+
+To test for world collisions, we now check to see if any of the corners of the
+bounding box have collided with the edges of the world.  To test for collisions
+with toher objects, we'll maintain a list of items that have already been
+tested for collision.  We'll walk through the list and see if any of the
+corner-points from either of the actors resides inside another actor's bounding
+box.  If so they collide.
+
+That's really all there is to our basic collision detection system.  Here is the function to test for an individual collision:
+
+.. include:: code\\actors2.py
+   :literal:
+   :starting-line: 48
+   :ending-line: 63
+
+There is another method that iterates through all actors and tests.  It is called during the sendStateToActors() tasklet:
+
+.. include:: code\\actors2.py
+   :literal:
+   :starting-line: 72
+   :ending-line: 96
+
+Constant Time
+=============
+
+Another problem with our simulation is that it runs on different speeds on
+different computers.  If your computer is faster tham mine, I imagine you can
+barely even see the robots.  If it is slower, they may come to a crawl.
+
+To correct this, we'll issue the WORLD_STATE messages at a constant rate.  By
+default we'll go with one every thirtyith of a second.  If we could just
+standardize on that, things would be easy, but we need to be able to correct if
+the computer cannot handle the load and maintain this update rate.  If it takes
+longer than 1/30 of a second to run an individual frame (either due to the
+complexity of the program, or an external program hogging resources) we need to
+adjust the update rate.
+
+For our example, if we accomplish everything we are using more time than we
+have based on our update rate, we'll decrease the rate by one part per second.
+If we have 40% or more free time based on our current update rate, we'll
+increase the rate by one part per second with a maximum cap of 30 updates per
+second.
+
+This allows us to run at the same speed on different computers, but it
+introduces an interesting problem.  For example, we're currently updating our
+basicRobot's angle for one degree for each update, and have velocity set per
+update.  If we run the program for ten seconds on two different computers, one
+running at 20 updates per second and another running 30 updates per second, the
+robots will be in different locations.  This is clearly undesireable.  We need to adjust the updates that actors made based on a time-delta.
+
+In the case of the basicRobots, instead of updating the angle 1 degree per turn
+and (for example) the velocity 5 points per turn, we should calculate this
+based on the time that has passed.  In this case, we'll want to update the
+angle 30.0 degrees times the time-delta, and the velocity 150.0 points times
+the time-delta.  This way we'll get consistent behaviour regardless of the
+update rate.
+
+To facilitate this, we'll need to modify the WORLD_STATE message to include
+both the current time and the update rate, so that actors receiving the message
+will be able to calculate appropriate update information.
+
+Code implementing the update rate:
+
+.. include:: code\\actors2.py
+   :literal:
+   :starting-line: 108
+   :ending-line: 131
+
+Damage, Hitpoints, and Dying
+============================
+
+Right now our robots are immortal.  They will go on forever.  That isn't very
+fun.  They should only be able to take so much damage before they die.  To
+facilitate this, we'll add a couple of new messages.  The DAMAGE message
+includes a parameter that indicates the amount of damage received.  This is
+subtracted from the new property *hitpoints* in the basicRobot class.  If
+damage is less than or equal to 0, the actor recieving the message sends a
+KILLME message to world actor.  Here is the applicible code snipped from the
+defaultMessageAction() method of the basic robot:
+
+.. include:: code\\actors2.py
+   :literal:
+   :starting-line: 242
+   :ending-line: 246
+
+In addition, we've arbitrarily decided that COLLISION messages will deduct one
+hitpoint and send a KILLME message to the world if necessary.
+
+When the WORLD actor recieves a KILLME message, it will set it's internal
+record of the sending actor's hitpoints to zero.  Later, as part of the normal
+update, it will delete actors with hitpoints less than or equal to zero:
+
+.. include:: code\\actors2.py
+   :literal:
+   :starting-line: 66
+   :ending-line: 71
+
+Note that we've introduced the channels *send_exception()* method here.
+Instead of a normal send, this causes *channel.receive()* to raise an exception
+in the receiving tasklet.  In this case we're raising stackless' TaskletExit
+exception, which will cause the tasklet to end silently.  You could raise any
+other exception, but if an arbitrary exception is unhandled, it will be
+reraised in the main tasklet.
+
+Program with mechanics
+======================
+
+The completed verison of this program still isn't too thrilling, but if you run
+it you'll see that all of the features we have added above are working.  The
+robots will eventually die and disappear after enough collisions.
 
 -------------------------------------
 Back to the actors: Let's get crazy
 -------------------------------------
 
+Now that the simulation mechanics are out of the way, we can start to have some
+fun with the program.  First off...
+
+Explosions
+==========
+
+It's not very exciting to have the robots simply disappear when they die.  They
+should at least blow up.  Robots will create an explosion actor when they die.
+This is not phyiscal, so it simply displays the explosion image.  It will kill
+itself after three seconds so that the explosion image will disappear:
+
 .. include:: code\\actors3.py
    :literal:
+   :starting-line: 251
+   :ending-line: 271
+
+Mine Dropping Robot
+===================
+
+Now we'll create a robot that drops mines.  Before the robot class, we'll need
+the mine class:
+
+.. include:: code\\actors3.py
+   :literal:
+   :starting-line: 272
+   :ending-line: 296
+
+This is a simple actor.  It simply sits there until something hits it, then
+sends 25 points damage to whatever it collided with and kills itself.
+
+The mindropperRobot is similar to the basic robot, with a few differences.
+First, to mix things up, I've configured the minedropperRobot to move in a
+serpintine fashion instead of slowly turning in the same direction.  Secondly,
+it will create a mine every second and place it directly behind itself:
+
+.. include:: code\\actors3.py
+   :literal:
+   :starting-line: 298
+   :ending-line: 373
+
+Spawner Pads
+============
+
+Spawner pads simply create new robots with random attributes at their location
+every five seconds.  There is a little black magic in the constructor.  Instead
+of creating an array of valid robot objects, we use introspection to find all
+classes that end with then name "Robot" and add them to the list.  That way, if
+you create your own robot classes, you won't need to go through any sort of
+registration mechanism with the spawner class.  Other than that, the class
+should be reasonably straightforward:
+
+.. include:: code\\actors3.py
+   :literal:
+   :starting-line: 375
+   :ending-line: 406
+
+The Final Simulation
+====================
+
+We'll finish up by creating spawners in each of the four corners and the center
+of the world.  We now have a simulation that will keep on going and creating
+new robots as necessary.  Feel free to add new robots and play around with the
+simulation.
+
+-------
+Summary
+-------
+
+We've managed to create a reasonably complex simulation with a small amount of
+code.  Even more importantly, each actor runs on it's own.  If you consider the
+messages we've been passing our API, it doesn't really have much to it:
+
+    + WORLD_STATE
+
+    + JOIN
+
+    + UPDATE_VECTOR
+
+    + COLLISION
+
+    + KILLME
+
+    + DAMAGE
+
+Other than that, everything else an actor needs to know about is encapsulated
+within itself.  With only these six messages that it has to deal with to
+understand the outside world, it simplifies both the program and our ability to
+understand it.
 
 

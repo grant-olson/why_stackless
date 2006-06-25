@@ -7,7 +7,9 @@ into today's OSes and supported by the standard python code.  They use less
 memory than a 'traditional' thread, and switching between threadlets is much
 less resource intensive than switching between 'traditional' threads.
 
-To demonstrate exactly how much more efficient threadlets are than traditional threads, we'll write the same program using both traditional threads and threadlets.
+To demonstrate exactly how much more efficient threadlets are than traditional
+threads, we'll write the same program using both traditional threads and
+threadlets.
 
 ------------------------
 The hackysack simulation
@@ -26,28 +28,29 @@ infinitely if allowed.
 Tradional threaded version of the game
 --------------------------------------
 
-.. include:: code\\hackeysackthreaded.py
+.. include:: code\\hackysackthreaded.py
    :literal:
 
 A hackysacker class is initialized with it's name, a reference to a global list
-circle that contains all of the players, and a message queue derived from the
+*circle* that contains all of the players, and a message queue derived from the
 Queue class included in the python standard library.
 
-The Queue class acts similarly to stackless channels.  It contains put() and
-get() methods.  Calling the put() method on an empty Queue blocks until another
-thread put()s something into the Queue.
+The Queue class acts similarly to stackless channels.  It contains *put()* and
+*get()* methods.  Calling the *put()* method on an empty Queue blocks until
+another thread *put()*s something into the Queue.  The Queue class is also
+designed to work efficiently with OS-level threads.
 
-The init method then starts the messageLoop in a new thread using the thread
-module from the python standard library.  The message loop starts an infinite
-loop that processes messages in the queue.  If it recieves the special message
-'exit', it terminates the thread.
+The *__init__* method then starts the messageLoop in a new thread using the
+thread module from the python standard library.  The message loop starts an
+infinite loop that processes messages in the queue.  If it recieves the special
+message 'exit', it terminates the thread.
 
 If it recieves another message, that indicates that it is recieving the
 hackysack.  It grabs another random player from the loop and 'kicks' the
 hackysack to it by sending it a message.
 
 Once there have been enough kicks, as counted by the class variable
-hackysacker.counter, each player in the circle is sent the special 'exit'
+*hackysacker.counter*, each player in the circle is sent the special 'exit'
 message.
 
 Note that there is also a debugPrint function that prints output if the global
@@ -56,7 +59,9 @@ make the timing inaccurate when we measure it.
 
 Let's run the program to verify that it works::
 
-    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.exe hackeysackthreaded.py
+    C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.exe
+    hackeysackthreaded.py
+    
     1 got hackeysack from 1
     1 kicking hackeysack to 4
     4 got hackeysack from 1
@@ -77,7 +82,7 @@ Let's run the program to verify that it works::
 
 And we see that all the hackysackers get together and play a quick game.  Now
 let's time some trial runs.  The python standard library include a program
-timeit.py that does this.  In this case, we'll disable printing as well::
+timeit.py that does this.  In this case, we'll disable debug printing as well::
 
   C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
   e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
@@ -123,15 +128,16 @@ increase the number of players::
 
 And we get an error when trying to start 10,000 threads on my 3 Ghz machine
 with 1 Gig of ram.  I don't want to bore you with the details of the output,
-but with some trial and error, the program starts failing at about 1100
-threads.  Also note that 1000 threads takes about three times as long as 10.
+but with some trial and error, the program starts failing at about 1100 threads
+on my machine.  Also note that 1000 threads takes about three times as long as
+10.
 
 
 ---------
 Stackless
 ---------
 
-.. include:: code\\hackeysackstackless.py
+.. include:: code\\hackysackstackless.py
    :literal:
 
 This code is virtually identical to the threaded version.  The primary
@@ -160,7 +166,8 @@ And it works as expected.  Now for the timing::
     100 loops, best of 3: 19.7 msec per loop
 
 
-It only takes 19.7 msec.  This is almost 10 times faster than the threaded version.  Now lets start increasing the number of threadlets::
+It only takes 19.7 msec.  This is almost 10 times faster than the threaded
+version.  Now lets start increasing the number of threadlets::
 
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
     e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
@@ -182,9 +189,18 @@ It only takes 19.7 msec.  This is almost 10 times faster than the threaded versi
     unit(100000,1000,0)
     10 loops, best of 3: 1.07 sec per loop
 
-Even by the time we get to 10,000 threads, which the threaded version wasn't even capable of running, we're still running faster than the threaded version did with only 10 threads.
+Even by the time we get to 10,000 threads, which the threaded version wasn't
+even capable of running, we're still running faster than the threaded version
+did with only 10 threads.
 
-Now I'm trying to keep the code simple, so you'll have to take my word for it, but the increase in timings here is due to the time it takes to setup the hackysack circle.  The amount of time to run the game is constant whether you have 10 threadlets or 100000 threadlets.  This is beacause of the way channels work: they block and instantly resume when they get a message.  On the other hand, OS threads each take turns checking to see if their message Queue has any elements.  This means that the more threads you run, the worse performance gets.
+Now I'm trying to keep the code simple, so you'll have to take my word for it,
+but the increase in timings here is due to the time it takes to setup the
+hackysack circle.  The amount of time to run the game is constant whether you
+have 10 threadlets or 100000 threadlets.  This is beacause of the way channels
+work: they block and instantly resume when they get a message.  On the other
+hand, OS threads each take turns checking to see if their message Queue has any
+elements.  This means that the more threads you run, the worse performance
+gets.
 
 -------
 Summary

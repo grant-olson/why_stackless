@@ -20,6 +20,9 @@ Why Stackless: or Concurrent Programming with Stackless Python
 
 .. include:: dataflow.txt
 
+.. include:: actors.txt
+
 .. include:: preemtive-multitasking.txt
 
+.. include:: code_listings.txt
 

@@ -80,10 +80,10 @@ each one can have it's turn.  A quick demonstration::
     >>>
 
 Note that when we call *stackless.schedule()*, the active tasklet pauses
-itself and reinserts itself into the end of the scheduler, allowing the next
-tasklet to run.  One the last tasklet has run, the first picks up where it left
-off.  This continues until all active tasklets have finished running.  This is
-how we achieve cooperative multitasking with stackless.
+itself and reinserts itself into the end of the scheduler's queue, allowing the
+next tasklet to run.  Once all of the tasklets ahead of this run, it picks up
+where it left off.  This continues until all active tasklets have finished
+running.  This is how we achieve cooperative multitasking with stackless.
 
 --------
 Channels

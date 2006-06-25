@@ -144,7 +144,7 @@ dataflow techniques to write the factory simulation.
 The Stackless Version of the Code
 ---------------------------------
 
-.. include:: code\\assemblyline-stackless-4.py
+.. include:: code\\assemblyline-stackless.py
    :literal:
 
 Analysis
@@ -339,7 +339,8 @@ Feel free to try it if you like, but I don't think it's necessary to show the
 interactive session here.
 
 Next up is an AndGate.  This is the first class we have that accepts multiple
-inputs.  It has two inputs.  If both are set to 1, it sends the message 1, otherwise it sends the message 0:
+inputs.  It has two inputs.  If both are set to 1, it sends the message 1,
+otherwise it sends the message 0:
 
 .. include:: code\\digitalCircuit.py
    :literal:
@@ -350,11 +351,21 @@ In the AndGate's process message, we need to determine what input sent the
 message and assign the state accordingly.  This is why we needed to send the
 self object from the other components.
 
-Lastly, we have the OrGate.  It is identical to the AndGate, with the execption that it sends the message 1 if ether input is 1, and 0 only if both inputs are 0:
+Lastly, we have the OrGate.  It is identical to the AndGate, with the execption
+that it sends the message 1 if ether input is 1, and 0 only if both inputs are
+0:
 
 .. include:: code\\digitalCircuit.py
    :literal:
    :starting-line: 108
    :ending-line: 141
 
+Half Adder
+==========
 
+To finish things up, we'll use the components we have created to build a half-adder.  A half-adder performs addition on two bits.  [TODO: Make half adder diagram]  We chain together several of our components and flip the switches.  Flipping the switches changes their state, and propigates these changes through the system via dataflow:
+
+.. include:: code\\digitalCircuit.py
+   :literal:
+   :starting-line: 144
+   :ending-line: 148

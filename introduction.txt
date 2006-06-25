@@ -26,10 +26,11 @@ mean to us? It means that stackless provides the tools to model concurrency
 more easily than you can currently do in most conventional languages.  We're
 not just talking about Python itself, but Java, C/C++ and other languages as
 well.  Although there are some langagues out there that provide concurrency
-features, they are either academically oriented languages (such as Mozart/Oz)
-or lesser used/special purpose professional languages (such as erlang).  With
-stackless, you get concurrency in addition to all of the advantages of python
-itself.
+features, they are either languages languages being primarily used in academia
+(such as Mozart/Oz) or lesser used/special purpose professional languages (such
+as erlang).  With stackless, you get concurrency in addition to all of the
+advantages of python itself, in an environment that you are (hopefully) already
+familiar with.
 
 This of course begs the question: Why concurrency?
 
@@ -42,7 +43,26 @@ knowledge of each other.  One of the purported benefits of object-oriented
 programming is that objects model things in the real world.  To a certain
 extent, this is true.  Object-oriented programming does a good job modelling
 individual objects, but it doesn't do a very good job representing interactions
-between these individual objects in a realistic way.
+between these individual objects in a realistic way.  For example, what is
+wrong with the following code example?
+
+::
+
+    def familyTacoNight():
+        husband.eat(dinner)
+        wife.eat(dinner)
+        son.eat(dinner)
+        daughter.eat(dinner)
+
+At first glance, nothing.  But there is a subtle programs with the above
+example; the events occur serially.  That is, the wife does not eat until after
+the husband is completed with his meal, the son doesn't eat until the wife is
+done, and the daughter is last in line.  In the real world, the the wife, son,
+and daughter will eat even if the husband gets caught in a traffic jam.  In the
+above example they'll starve to death.  Even worse no one will ever know
+because they'll never get the opportunity to throw an exception and notify the
+world!
+
 
 Concurrency might, just might, be the next big programming paradigm
 ===================================================================
@@ -51,11 +71,12 @@ I personally believe that concurrency is the next big paradigm in the software
 world.  As programs become more complex and resource intensive, we can no
 longer count on Moore's Law providing us with faster processors every year.
 Current performance increases in commodity PC's are comming from multi-core and
-multi-cpu machines.  Once these are maxxed out for performance, software
-developers are moving to distributed models where multiple computers interact
-with each other to create a high powered application (think think GooglePlex).
-To take advantage of both multi-core machines and distributed programming,
-concurrency quickly becomes the defacto standard way of doing things.
+multi-cpu machines.  Once an individual CPU is maxxed out for performance,
+software developers will have to move to distributed models where multiple
+computers interact with each other to create a high powered application (think
+think GooglePlex).  To take advantage of both multi-core machines and
+distributed programming, concurrency quickly becomes the defacto standard way
+of doing things.
 
 --------------------
 Installing Stackless
@@ -65,5 +86,6 @@ Details for installing stackless can be found on the stackless website.
 Currently, linux users can get the source from subversion and perform a build.
 For windows users, there is an available .zip file that has to be extracted
 into an existing installation of python.  The rest of this tutorial assumes
-that you have a working installation of stackless python.
+that you have a working installation of stackless python, along with a basic
+understanding of the python language itself.
 
