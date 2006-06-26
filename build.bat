@@ -9,4 +9,4 @@ latex why_stackless.latex
 dvipdfm why_stackless.dvi 
 
 del why_stackless.aux why_stackless.dvi why_stackless.log why_stackless.out
-:: del why_stackless.latex
+del why_stackless.latex

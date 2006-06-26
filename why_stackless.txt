@@ -1,9 +1,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Why Stackless: or Concurrent Programming with Stackless Python
+Introduction to Concurrent Programming with Stackless Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :Author:    Grant Olson
-:Date:      $Date$
+:Email:     olsongt@verizon.net
+:Date:      June 26, 2006
 
 
 .. contents:: Table of Contents
@@ -21,8 +22,6 @@ Why Stackless: or Concurrent Programming with Stackless Python
 .. include:: dataflow.txt
 
 .. include:: actors.txt
-
-.. include:: preemtive-multitasking.txt
 
 .. include:: code_listings.txt
 

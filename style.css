@@ -14,3 +14,15 @@ body{
     background:#dddddd;
     border:1pt solid black;
 }
+
+.note {
+    border:1pt solid black;
+    background:#dddddd;
+    margin-left:10%;
+    margin-right:10%;
+    padding-left:1em;
+    padding-right:1em;
+}
+.admonition-title {
+    font-weight:bold;
+}

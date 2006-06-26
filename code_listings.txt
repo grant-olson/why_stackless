@@ -1,0 +1,74 @@
+======================
+Complete Code Listings
+======================
+
+-----------------------------------------
+pingpong.py - recursive ping pong example
+-----------------------------------------
+
+.. include:: code\\pingpong.py
+    :literal:
+
+---------------------------------------------------
+pingpong_stackless.py - stackless ping pong example
+---------------------------------------------------
+
+.. include:: code\\pingpong_stackless.py
+    :literal:
+
+--------------------------------------------------------
+hackysackthreaded.py - OS-Thread based hackysack example
+--------------------------------------------------------
+
+.. include:: code\\hackysackthreaded.py
+    :literal:
+
+---------------------------------------------------
+hackysackstackless.py - stackless hackysack example
+---------------------------------------------------
+
+.. include:: code\\hackysackstackless.py
+   :literal:
+
+-----------------------------------------------
+assemblyline.py - 'normal' assemblyline example
+-----------------------------------------------
+
+.. include:: code\\assemblyline.py
+    :literal:
+
+--------------------------------------------------------------
+assemblyline-stackless.py - stackless assembly line example
+--------------------------------------------------------------
+
+.. include:: code\\assemblyline.py
+    :literal:
+
+---------------------------------------------
+digitalCircuit.py - stackless digital circuit
+---------------------------------------------
+
+.. include:: code\\digitalCircuit.py
+    :literal:
+
+-------------------------------
+actors.py - first actor example
+-------------------------------
+
+.. include:: code\\actors.py
+    :literal:
+
+---------------------------------
+actors2.py - second actor example
+---------------------------------
+
+.. include:: code\\actors2.py
+    :literal:
+
+--------------------------------
+actors3.py - third actor example
+--------------------------------
+
+.. include:: code\\actors3.py
+    :literal:
+

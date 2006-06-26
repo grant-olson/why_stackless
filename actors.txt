@@ -132,7 +132,7 @@ printed output.
 I decided to use pyGame to create a simple visualization engine.  Although
 descriptions of pyGame internals are outside the scope of this tutorial,
 operation is relatively straight-forward.  When the display actor receives a
-WORLD_STATE message, it places the appropriate actors and updates the disply.
+WORLD_STATE message, it places the appropriate actors and updates the display.
 Luckily, we are able to isolate all of the pygame code into a single actor, so
 the rest of the code should remain 'unpolluted'  and understandible without
 knowing or caring how pygame renders the display:
@@ -265,8 +265,8 @@ Code implementing the update rate:
 
 .. include:: code\\actors2.py
    :literal:
-   :starting-line: 108
-   :ending-line: 131
+   :starting-line: 106
+   :ending-line: 130
 
 Damage, Hitpoints, and Dying
 ============================
@@ -282,8 +282,8 @@ defaultMessageAction() method of the basic robot:
 
 .. include:: code\\actors2.py
    :literal:
-   :starting-line: 242
-   :ending-line: 246
+   :starting-line: 238
+   :ending-line: 243
 
 In addition, we've arbitrarily decided that COLLISION messages will deduct one
 hitpoint and send a KILLME message to the world if necessary.
@@ -294,8 +294,8 @@ update, it will delete actors with hitpoints less than or equal to zero:
 
 .. include:: code\\actors2.py
    :literal:
-   :starting-line: 66
-   :ending-line: 71
+   :starting-line: 65
+   :ending-line: 70
 
 Note that we've introduced the channels *send_exception()* method here.
 Instead of a normal send, this causes *channel.receive()* to raise an exception
@@ -328,8 +328,8 @@ itself after three seconds so that the explosion image will disappear:
 
 .. include:: code\\actors3.py
    :literal:
-   :starting-line: 251
-   :ending-line: 271
+   :starting-line: 249
+   :ending-line: 270
 
 Mine Dropping Robot
 ===================
@@ -339,7 +339,7 @@ the mine class:
 
 .. include:: code\\actors3.py
    :literal:
-   :starting-line: 272
+   :starting-line: 271
    :ending-line: 296
 
 This is a simple actor.  It simply sits there until something hits it, then
@@ -352,7 +352,7 @@ it will create a mine every second and place it directly behind itself:
 
 .. include:: code\\actors3.py
    :literal:
-   :starting-line: 298
+   :starting-line: 297
    :ending-line: 373
 
 Spawner Pads
@@ -368,7 +368,7 @@ should be reasonably straightforward:
 
 .. include:: code\\actors3.py
    :literal:
-   :starting-line: 375
+   :starting-line: 374
    :ending-line: 406
 
 The Final Simulation
