@@ -167,20 +167,23 @@ scheduler.
 The classes
 -----------
 
-The storeroom class is similar to the other version.  The primary difference is
-that if there is not enough to get(), the class keeps on rescheduling the
-tasklet until it is.  Also, a tasklet is created on instatiation.  Plastic and rivet storeroom instances are created.
-
-The injectionMolder class is also similar to the other version.  The get() method works like the storeroom get() method, and keeps on rescheduling itself until a part is ready.  The run loop...
-
-The assembler class is also similar to the other version.  The get() method works like the storeroom get() method, and keeps on rescheduling itself until a part is ready.  The run loop...
+These classes are similar to the original classes with a few notable
+exceptions.  The first is that they spawn their *run()* methods at
+instantiation.  We no longer need to manually create a components array and an
+external *run()* function to process the event loop; stackless handles this
+implicitly.  The second difference is that tasklets will sleep while waiting
+for a part to be built instead of explictly maintaining a counter to track
+time.  The third difference is that calls to *get()* are more natural.  If a
+material or part is not available, the tasklet will simply reschedule itself
+until it is available.
 
 -----------------------
 So what have we gained?
 -----------------------
 
-Okay, so what's the big deal? Lets examine the run method from the original
-version of the factory::
+Okay, so what's the big deal? Both programs run and basically generate the same
+results.  Lets examine the run method from the original version of the
+factory::
 
     def run(self):
         if self.time == 0:
@@ -229,6 +232,10 @@ the event loop and program works.
 ------------
 Pushing Data
 ------------
+
+.. note::
+    The completed program from this section is listed as digitalCircuit.py in
+    both the code .zip archive and at the end of this document.
 
 In the case of the factory, we were 'pulling' data.  Each component asked for
 the parts it needed and waited until they arrived.  We could also 'push'
@@ -367,5 +374,5 @@ To finish things up, we'll use the components we have created to build a half-ad
 
 .. include:: code\\digitalCircuit.py
    :literal:
-   :starting-line: 144
-   :ending-line: 148
+   :starting-line: 143
+   :ending-line: 158

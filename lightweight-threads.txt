@@ -60,7 +60,7 @@ make the timing inaccurate when we measure it.
 Let's run the program to verify that it works::
 
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.exe
-    hackeysackthreaded.py
+    hackysackthreaded.py
     
     1 got hackeysack from 1
     1 kicking hackeysack to 4
@@ -85,7 +85,7 @@ let's time some trial runs.  The python standard library include a program
 timeit.py that does this.  In this case, we'll disable debug printing as well::
 
   C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
-  e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
+  e c:\Python24\lib\timeit.py -s "import hackysackthreaded" hackysackthreaded.ru
   nit(10,1000,0)
   10 loops, best of 3: 183 msec per loop
 
@@ -97,22 +97,14 @@ increase the number of players::
     e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
     nit(100,1000,0)
     10 loops, best of 3: 231 msec per loop
-    Unhandled exception in thread started by
-    Error in sys.excepthook:
-    
-    Original exception was:
     
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
-    e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
+    e c:\Python24\lib\timeit.py -s "import hackysackthreaded" hackysackthreaded.ru
     nit(1000,1000,0)
     10 loops, best of 3: 681 msec per loop
-    Unhandled exception in thread started by
-    Error in sys.excepthook:
-    
-    Original exception was:
     
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\python24\python.ex
-    e c:\Python24\lib\timeit.py -s "import hackeysackthreaded" hackeysackthreaded.ru
+    e c:\Python24\lib\timeit.py -s "import hackysackthreaded" hackysackthreaded.ru
     nit(10000,1000,0)
     Traceback (most recent call last):
       File "c:\Python24\lib\timeit.py", line 255, in main
@@ -146,7 +138,7 @@ between threads via channels instead of a Queue object.  Let's run it and
 verify the output::
 
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
-    e hackeysackstackless.py
+    e hackysackstackless.py
     1 got hackeysack from 1
     1 kicking hackeysack to 1
     1 got hackeysack from 1
@@ -161,7 +153,7 @@ verify the output::
 And it works as expected.  Now for the timing::
 
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
-    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    e c:\Python24\lib\timeit.py -s"import hackysackstackless" hackysackstackless.r
     unit(10,1000,0)
     100 loops, best of 3: 19.7 msec per loop
 
@@ -170,22 +162,22 @@ It only takes 19.7 msec.  This is almost 10 times faster than the threaded
 version.  Now lets start increasing the number of threadlets::
 
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
-    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    e c:\Python24\lib\timeit.py -s"import hackysackstackless" hackysackstackless.r
     unit(100,1000,0)
     100 loops, best of 3: 19.7 msec per loop
     
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
-    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    e c:\Python24\lib\timeit.py -s"import hackysackstackless" hackysackstackless.r
     unit(1000,1000,0)
     10 loops, best of 3: 26.9 msec per loop
     
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
-    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    e c:\Python24\lib\timeit.py -s"import hackysackstackless" hackysackstackless.r
     unit(10000,1000,0)
     10 loops, best of 3: 109 msec per loop
     
     C:\Documents and Settings\grant\Desktop\why_stackless\code>c:\Python24\python.ex
-    e c:\Python24\lib\timeit.py -s"import hackeysackstackless" hackeysackstackless.r
+    e c:\Python24\lib\timeit.py -s"import hackysackstackless" hackysackstackless.r
     unit(100000,1000,0)
     10 loops, best of 3: 1.07 sec per loop
 

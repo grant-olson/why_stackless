@@ -24,6 +24,10 @@ If we're going to create a simulation, we might as well simulate...
 Killer Robots!
 --------------
 
+.. note::
+    The completed program from this section is listed as actors.py in
+    both the code .zip archive and at the end of this document.
+
 Actor Base Class
 ================
 
@@ -129,6 +133,10 @@ illustrative.  We were already pushing it in the section on Dataflow, but the
 code in this section is getting too complex to even try to represent it with
 printed output.
 
+.. note::
+    You will need to install a current copy of pyGame for the code samples in
+    this section to work.  It is available at http://www.pygame.org/
+
 I decided to use pyGame to create a simple visualization engine.  Although
 descriptions of pyGame internals are outside the scope of this tutorial,
 operation is relatively straight-forward.  When the display actor receives a
@@ -149,12 +157,19 @@ This takes the WORLD_STATE and creates a display based on that.
    in this section to work.  You will also want to download the optional icons
    that I've created and unzip the directory under your source directory.
 
+Round 1 of the code
+===================
+
 Now we have enough to run the first version of the program.  Upon execution,
 two of the basicRobots will zoom around and bounce off of the walls.
 
-------------------------------------
-Another Detour: Simulation Mechanics
-------------------------------------
+----------------------------------
+More Detours: Simulation Mechanics
+----------------------------------
+
+.. note::
+    The completed program from this section is listed as actors2.py in
+    both the code .zip archive and at the end of this document.
 
 As another detour, we need to implement some game (er... I mean simulation)
 mechanics.  Strictly speaking, these mechanics don't have anything to do with
@@ -304,16 +319,20 @@ exception, which will cause the tasklet to end silently.  You could raise any
 other exception, but if an arbitrary exception is unhandled, it will be
 reraised in the main tasklet.
 
-Program with mechanics
-======================
+Round 2 of the code
+===================
 
 The completed verison of this program still isn't too thrilling, but if you run
 it you'll see that all of the features we have added above are working.  The
 robots will eventually die and disappear after enough collisions.
 
--------------------------------------
+-----------------------------------
 Back to the actors: Let's get crazy
--------------------------------------
+-----------------------------------
+
+.. note::
+    The completed program from this section is listed as actors3.py in
+    both the code .zip archive and at the end of this document.
 
 Now that the simulation mechanics are out of the way, we can start to have some
 fun with the program.  First off...
