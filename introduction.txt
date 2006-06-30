@@ -6,7 +6,7 @@ Introduction
 Why Stackless
 -------------
 
-According the the stackless website at http://www.stackless.org::
+According the the stackless website at http://www.stackless.com/::
 
     Stackless Python is an enhanced version of the Python programming language.
     It allows programmers to reap the benefits of thread-based programming
