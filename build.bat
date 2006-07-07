@@ -19,6 +19,6 @@ del why_stackless.latex
 del *.txt
 del build.bat style.css style.tex .cvsignore why_stackless.toc
 
-tar cvf code.tar code
-gzip code.tar
+tar cvf why_stackless_code.tar code
+gzip why_stackless_code.tar
 rmdir /S /Q code
