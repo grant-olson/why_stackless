@@ -128,7 +128,6 @@ class basicRobot(actor):
         self.angle = angle
         self.velocity = velocity
         self.world = world
-        self.vector = self.vectorFromAngleAndVelocity()
 
         joinMsg =(self.channel,"JOIN",self.__class__.__name__,
                   self.location,self.angle,self.velocity)
@@ -141,7 +140,6 @@ class basicRobot(actor):
             self.angle += 1
             if self.angle >= 360:
                 self.angle -= 360
-            self.vector = self.vectorFromAngleAndVelocity()
 
             updateMsg = (self.channel, "UPDATE_VECTOR",
                          self.angle,self.velocity)
@@ -150,7 +148,6 @@ class basicRobot(actor):
             self.angle += 73
             if self.angle >= 360:
                 self.angle -= 360
-            self.vector = self.vectorFromAngleAndVelocity()
         else:
             print "UNKNOWN MESSAGE", args
 
