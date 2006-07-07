@@ -18,22 +18,22 @@ Take the following example:
 
 An experienced programmer will see a problem with this program.  It causes a
 stack overflow.  If you run the program, it'll display a big nasty traceback
-indicating that you ran out of stackspace.
+indicating that you ran out of stack space.
 
 The Stack
 =========
 
 I debated how much detail I should get into about the C-stack, and decided to
 bypass the description entirely.  It seemed like other attempts to describe it
-and diagrams only made senst to people who already understood it.  I'll try to
-provide a simplictic explaiantion of it.  Interested readers should look for
+and diagrams only made sense to people who already understood it.  I'll try to
+provide a simplistic explanation of it.  Interested readers should look for
 more information on the web.
 
 Every time you call a subroutine, it creates a **stack frame**.  This is the
 holding area for variables and other information local to the subroutine.  In
 this case, when you call *ping()* it creates a stack frame that holds
 information for the subroutine call.  Simplistically, the frame says that says
-*ping pinged*.  When it calles *pong()*, this creates another stack frame that
+*ping pinged*.  When it calls *pong()*, this creates another stack frame that
 says *pong ponged*.  The stack frames are chained together, with each
 subroutine call acting as a link in the chain.  In this case, the stack
 basically says *ping pinged so pong ponged*.  Of course when *pong()* calls
@@ -62,9 +62,9 @@ stack.  In most cases, each stack frame cleans itself up when a subroutine
 returns.  In those cases, the stack will clean itself up.  This is generally a
 good thing.  In C, the stack is the one area where the programmer doesn't have
 to do manual memory management.  Luckily, python programmers don't have to
-worry about memory managment and the stack directly, but because the python
+worry about memory management and the stack directly, but because the python
 interpreter itself is written in C, the implementors do have to worry about it.
-Using the stack makes things convienent.  That is until we start calling
+Using the stack makes things convenient.  That is until we start calling
 functions that never return, like the example above.  Then the stack actually
 starts working against the programmer, and exhausts available memory.
 
@@ -100,19 +100,19 @@ You can run this program as long as you want and it won't crash.  Also, if you
 examine memory usage (with the Task Manager on Windows or **top** on Unix),
 you'll see that memory usage is constant.  The coroutine version of the program
 uses the same memory whether it runs for 1 minute or a day.  If you examine
-memory usage of the recursive vesion, you'll see that it grows quickly before
+memory usage of the recursive version, you'll see that it grows quickly before
 the program blows up.
 
 -------
 Summary
 -------
 
-If you recall, eariler I mentioned that experience programmers would
+If you recall, earlier I mentioned that experience programmers would
 immediately see a problem with the recursive version of the code.  But
 honestly, there's not 'computer science' issue that would prevent this code
-from working.  It is simply a minor implmentation detail that you're stuck with
+from working.  It is simply a minor implementation detail that you're stuck with
 in most conventional languages, because most conventional languages use a
 stack.  In some sense, experienced programmers have simply been brainwashed to
-accept this as an acceptible problem.  Stackless removes this perceived
+accept this as an acceptable problem.  Stackless removes this perceived
 problem.
 

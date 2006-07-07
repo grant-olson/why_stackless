@@ -3,9 +3,9 @@ Actors
 ======
 
 In the actor model, everything is an actor (duh!).  Actors are objects (in the
-generic sense, not necessisarily the OO sense) that can:
+generic sense, not necessarily the OO sense) that can:
 
-    + Recieve messages from other actors.
+    + Receive messages from other actors.
 
     + Process the received messages as they see fit.
 
@@ -43,7 +43,7 @@ all of our actors:
 By default, an actor creates a channel to accept messages, assigns a method to
 process the messages, and kicks off a loop to dispatch accepted messages to the
 processing method.  The default processor simply prints the message that it
-recieved.  That's really all we need to implement the actor model.
+received.  That's really all we need to implement the actor model.
 
 Message Format
 ==============
@@ -63,7 +63,7 @@ and access unknown information about the actor that sent a message.
 
 In fact, you'll note that when we instantiate most of the actors in this
 chapter, we don't even assign them to a variable that is accessible to other
-actors.  We just create them and let them float around on thier own with
+actors.  We just create them and let them float around on their own with
 limited knowledge of the environment.
 
 World class
@@ -80,7 +80,7 @@ information about all visible actors for their own internal processing:
    :ending-line: 71
 
 In addition to the message processing tasklet, the world actor spawns a
-seperate tasklet that runs the sendStateToActors() method.  This method has a
+separate tasklet that runs the sendStateToActors() method.  This method has a
 loop which builds the information about the state of the world, and sends it to
 all actors.  This is the only message that the actors can rely on receiving.
 If necessary, they will respond to this message by sending some sort of UPDATE
@@ -104,7 +104,7 @@ UPDATE_VECTOR
   Set a new angle and velocity for the actor that send the message.
 
 Lastly, a world actor is instantiated and its channel is saved in the global
-variable World so that other actors can send thier initial JOIN messages.
+variable World so that other actors can send their initial JOIN messages.
 
 A Simple Robot
 ==============
@@ -128,7 +128,7 @@ Detour: pyGame
 
 So far we've been using debug print statements to illustrate the way things are
 working in our sample programs.  I tried to do this to keep the code simple and
-understandible, but at some point print statements become more confusing than
+understandable, but at some point print statements become more confusing than
 illustrative.  We were already pushing it in the section on Dataflow, but the
 code in this section is getting too complex to even try to represent it with
 printed output.
@@ -142,7 +142,7 @@ descriptions of pyGame internals are outside the scope of this tutorial,
 operation is relatively straight-forward.  When the display actor receives a
 WORLD_STATE message, it places the appropriate actors and updates the display.
 Luckily, we are able to isolate all of the pygame code into a single actor, so
-the rest of the code should remain 'unpolluted'  and understandible without
+the rest of the code should remain 'unpolluted'  and understandable without
 knowing or caring how pygame renders the display:
 
 .. include:: code\\actors.py
@@ -173,7 +173,7 @@ More Detours: Simulation Mechanics
 
 As another detour, we need to implement some game (er... I mean simulation)
 mechanics.  Strictly speaking, these mechanics don't have anything to do with
-the actor model.  However, to create a rich and realisitic simulation we need
+the actor model.  However, to create a rich and realistic simulation we need
 to get these mechanics out of the way.  This section will detail what we are
 trying to accomplish and how we will accomplish it.  After that, our
 environment to toy around with actors will be much more usable.
@@ -183,8 +183,8 @@ Actor Properties
 
 As the information that the world actor needs to track becomes more complex,
 sending a bunch of individual arguments in the initial JOIN message becomes
-cumbersome.  To make this easier, we'll create a properites object to track the
-info.  This will be sent with the JOIN message instead of individiual
+cumbersome.  To make this easier, we'll create a properties object to track the
+info.  This will be sent with the JOIN message instead of individual
 parameters.
 
 .. include:: code\\actors2.py
@@ -218,7 +218,7 @@ approximation of the actor's physical dimensions.
 
 To test for world collisions, we now check to see if any of the corners of the
 bounding box have collided with the edges of the world.  To test for collisions
-with toher objects, we'll maintain a list of items that have already been
+with other objects, we'll maintain a list of items that have already been
 tested for collision.  We'll walk through the list and see if any of the
 corner-points from either of the actors resides inside another actor's bounding
 box.  If so they collide.
@@ -241,11 +241,11 @@ Constant Time
 =============
 
 Another problem with our simulation is that it runs on different speeds on
-different computers.  If your computer is faster tham mine, I imagine you can
+different computers.  If your computer is faster than mine, I imagine you can
 barely even see the robots.  If it is slower, they may come to a crawl.
 
 To correct this, we'll issue the WORLD_STATE messages at a constant rate.  By
-default we'll go with one every thirtyith of a second.  If we could just
+default we'll go with one every thirtieth of a second.  If we could just
 standardize on that, things would be easy, but we need to be able to correct if
 the computer cannot handle the load and maintain this update rate.  If it takes
 longer than 1/30 of a second to run an individual frame (either due to the
@@ -263,7 +263,8 @@ introduces an interesting problem.  For example, we're currently updating our
 basicRobot's angle for one degree for each update, and have velocity set per
 update.  If we run the program for ten seconds on two different computers, one
 running at 20 updates per second and another running 30 updates per second, the
-robots will be in different locations.  This is clearly undesireable.  We need to adjust the updates that actors made based on a time-delta.
+robots will be in different locations.  This is clearly undesirable.  We need
+to adjust the updates that actors made based on a time-delta.
 
 In the case of the basicRobots, instead of updating the angle 1 degree per turn
 and (for example) the velocity 5 points per turn, we should calculate this
@@ -291,8 +292,8 @@ fun.  They should only be able to take so much damage before they die.  To
 facilitate this, we'll add a couple of new messages.  The DAMAGE message
 includes a parameter that indicates the amount of damage received.  This is
 subtracted from the new property *hitpoints* in the basicRobot class.  If
-damage is less than or equal to 0, the actor recieving the message sends a
-KILLME message to world actor.  Here is the applicible code snipped from the
+damage is less than or equal to 0, the actor receiving the message sends a
+KILLME message to world actor.  Here is the applicable code snipped from the
 defaultMessageAction() method of the basic robot:
 
 .. include:: code\\actors2.py
@@ -303,7 +304,7 @@ defaultMessageAction() method of the basic robot:
 In addition, we've arbitrarily decided that COLLISION messages will deduct one
 hitpoint and send a KILLME message to the world if necessary.
 
-When the WORLD actor recieves a KILLME message, it will set it's internal
+When the WORLD actor receives a KILLME message, it will set it's internal
 record of the sending actor's hitpoints to zero.  Later, as part of the normal
 update, it will delete actors with hitpoints less than or equal to zero:
 
@@ -316,13 +317,14 @@ Note that we've introduced the channels *send_exception()* method here.
 Instead of a normal send, this causes *channel.receive()* to raise an exception
 in the receiving tasklet.  In this case we're raising stackless' TaskletExit
 exception, which will cause the tasklet to end silently.  You could raise any
-other exception, but if an arbitrary exception is unhandled, it will be
-reraised in the main tasklet.
+other exception, but if an arbitrary exception is unhanded, it will be
+re-raised in the main tasklet.
+
 
 Round 2 of the code
 ===================
 
-The completed verison of this program still isn't too thrilling, but if you run
+The completed version of this program still isn't too thrilling, but if you run
 it you'll see that all of the features we have added above are working.  The
 robots will eventually die and disappear after enough collisions.
 
@@ -342,7 +344,7 @@ Explosions
 
 It's not very exciting to have the robots simply disappear when they die.  They
 should at least blow up.  Robots will create an explosion actor when they die.
-This is not phyiscal, so it simply displays the explosion image.  It will kill
+This is not physical, so it simply displays the explosion image.  It will kill
 itself after three seconds so that the explosion image will disappear:
 
 .. include:: code\\actors3.py
@@ -366,7 +368,7 @@ sends 25 points damage to whatever it collided with and kills itself.
 
 The mindropperRobot is similar to the basic robot, with a few differences.
 First, to mix things up, I've configured the minedropperRobot to move in a
-serpintine fashion instead of slowly turning in the same direction.  Secondly,
+serpentine fashion instead of slowly turning in the same direction.  Secondly,
 it will create a mine every second and place it directly behind itself:
 
 .. include:: code\\actors3.py

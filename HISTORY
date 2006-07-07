@@ -2,6 +2,8 @@
 CURRENT RELEASE
 ===============
 
+    + Fixed many typos (thank you Vim 7.0!)
+
     + minor reStructuredText processing error [reported by Matthew Nourse]
 
     + Fixed problem with actors.py referencing phantom method [reported by Michael
@@ -9,7 +11,8 @@ CURRENT RELEASE
 
     + Fixed link to stackless.com, not stackless.org [reported by ???]
 
-    + Added missing spawner.bmp to cvs.
+    + Added missing spawner.bmp to cvs.  This caused actors3.py to crash on
+      a cvs checkout version of the code.
 
 INITIAL RELEASE - 2006-06-26
 ============================

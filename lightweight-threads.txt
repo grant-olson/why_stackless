@@ -18,7 +18,7 @@ The hackysack simulation
 Hackysack is a game in which a group of dirty hippies stand in a circle and
 kick a small bean filled bag around.  The object is to keep the bag from
 hitting the ground, while passing it to other players and doing tricks.
-Players can only use thier feet to kick the ball around.
+Players can only use their feet to kick the ball around.
 
 In our simple simulation, we'll assume that the circle is a constant size once
 the game starts, and that the players are so good that the game will go on
@@ -42,10 +42,10 @@ designed to work efficiently with OS-level threads.
 
 The *__init__* method then starts the messageLoop in a new thread using the
 thread module from the python standard library.  The message loop starts an
-infinite loop that processes messages in the queue.  If it recieves the special
+infinite loop that processes messages in the queue.  If it receives the special
 message 'exit', it terminates the thread.
 
-If it recieves another message, that indicates that it is recieving the
+If it receives another message, that indicates that it is receiving the
 hackysack.  It grabs another random player from the loop and 'kicks' the
 hackysack to it by sending it a message.
 
@@ -188,7 +188,7 @@ did with only 10 threads.
 Now I'm trying to keep the code simple, so you'll have to take my word for it,
 but the increase in timings here is due to the time it takes to setup the
 hackysack circle.  The amount of time to run the game is constant whether you
-have 10 threadlets or 100000 threadlets.  This is beacause of the way channels
+have 10 threadlets or 100000 threadlets.  This is because of the way channels
 work: they block and instantly resume when they get a message.  On the other
 hand, OS threads each take turns checking to see if their message Queue has any
 elements.  This means that the more threads you run, the worse performance

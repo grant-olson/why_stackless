@@ -95,12 +95,12 @@ one exists.  For this class the run() method:
 
 Assembler instances are created to attach the leg, arm, and head.
 
-.. note ::
+.. note::
    You'll notice a lot of similarities between the storeroom, injectionMolder,
-   and assember classes contain a lot of similarities.  If I was writing a
-   production system, I would probably create a base class and use inheritance.
-   In this case, I thought setting up a class heirarchy would confuse the code,
-   so I kept it intentionally simple.
+   and assember classes.  If I was writing a production system, I would
+   probably create a base class and use inheritance.  In this case, I thought
+   setting up a class heirarchy would confuse the code, so I kept it
+   intentionally simple.
 
 
 All instances from all three classes are loaded into an array called

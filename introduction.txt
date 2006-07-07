@@ -6,7 +6,7 @@ Introduction
 Why Stackless
 -------------
 
-According the the stackless website at http://www.stackless.com/::
+According the stackless website at http://www.stackless.com/::
 
     Stackless Python is an enhanced version of the Python programming language.
     It allows programmers to reap the benefits of thread-based programming
@@ -21,11 +21,11 @@ According the the stackless website at http://www.stackless.com/::
       
       + Increased programmer productivity.
 
-Which acts as a very consise definition of stackless python, but what does that
+Which acts as a very concise definition of stackless python, but what does that
 mean to us? It means that stackless provides the tools to model concurrency
 more easily than you can currently do in most conventional languages.  We're
 not just talking about Python itself, but Java, C/C++ and other languages as
-well.  Although there are some langagues out there that provide concurrency
+well.  Although there are some languages out there that provide concurrency
 features, they are either languages languages being primarily used in academia
 (such as Mozart/Oz) or lesser used/special purpose professional languages (such
 as erlang).  With stackless, you get concurrency in addition to all of the
@@ -57,7 +57,7 @@ wrong with the following code example?
 At first glance, nothing.  But there is a subtle programs with the above
 example; the events occur serially.  That is, the wife does not eat until after
 the husband is completed with his meal, the son doesn't eat until the wife is
-done, and the daughter is last in line.  In the real world, the the wife, son,
+done, and the daughter is last in line.  In the real world, the wife, son,
 and daughter will eat even if the husband gets caught in a traffic jam.  In the
 above example they'll starve to death.  Even worse no one will ever know
 because they'll never get the opportunity to throw an exception and notify the
@@ -70,12 +70,12 @@ Concurrency might, just might, be the next big programming paradigm
 I personally believe that concurrency is the next big paradigm in the software
 world.  As programs become more complex and resource intensive, we can no
 longer count on Moore's Law providing us with faster processors every year.
-Current performance increases in commodity PC's are comming from multi-core and
-multi-cpu machines.  Once an individual CPU is maxxed out for performance,
+Current performance increases in commodity PC's are coming from multi-core and
+multi-cpu machines.  Once an individual CPU is maxed out for performance,
 software developers will have to move to distributed models where multiple
 computers interact with each other to create a high powered application (think
 think GooglePlex).  To take advantage of both multi-core machines and
-distributed programming, concurrency quickly becomes the defacto standard way
+distributed programming, concurrency quickly becomes the de-facto standard way
 of doing things.
 
 --------------------
