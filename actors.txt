@@ -118,7 +118,7 @@ continue moving forward.  Any other message is ignored.
 .. include:: code\\actors.py
    :literal:
    :starting-line: 123
-   :ending-line: 157
+   :ending-line: 155
 
 Note that the constructor for the robot issues a join message to the world
 object to register it.  Other than that, hopefully the code is straightforward.
