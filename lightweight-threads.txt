@@ -37,7 +37,7 @@ Queue class included in the python standard library.
 
 The Queue class acts similarly to stackless channels.  It contains *put()* and
 *get()* methods.  Calling the *put()* method on an empty Queue blocks until
-another thread *put()*s something into the Queue.  The Queue class is also
+another thread *put()s* something into the Queue.  The Queue class is also
 designed to work efficiently with OS-level threads.
 
 The *__init__* method then starts the messageLoop in a new thread using the

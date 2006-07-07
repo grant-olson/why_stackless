@@ -2,6 +2,8 @@
 CURRENT RELEASE
 ===============
 
+    + minor reStructuredText processing error [reported by Matthew Nourse]
+
     + Fixed problem with actors.py referencing phantom method [reported by Michael
       Brenner]
 
