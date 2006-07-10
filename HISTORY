@@ -2,6 +2,14 @@
 Stackless Python Tutorial History
 =================================
 
+NEXT RELEASE
+============
+
+    + " . . . Calling the put() method on an empty Queue blocks until another
+      thread put()s something into the Queue. . . ." should read " . . .
+      Calling the get() method on an empty Queue blocks until another thread
+      put()s something into the Queue. . . ." [reported by Davison Avery]
+
 RELEASE 2006-07-07
 ==================
 
