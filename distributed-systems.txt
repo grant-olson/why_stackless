@@ -1,0 +1,41 @@
+===================
+Distributed Systems
+===================
+
+Earlier versions of this tutorial did not contain this section.  If you
+remember, in the introduction I mentioned that concurrent programming paradigms
+will be necessicary to take advantage of multi-CPU machines and distributed
+clusters of computers.  Several observant readers were quick to point out that
+stackless python only runs on a single OS thread.  That is, it has no inherant
+ability to take advantage of multiple CPU machines or distributed systems.
+This is true.  Stackless python doesn't immediately 'scale' to take advantage
+of these systems.
+
+Hopefully, while reading this tutorial you've noticed a trend towards
+communicating by passing simple read-only data via message passing.  By using
+simple read-only messages to communicate between tasklets, we create programs
+that are easier to understand and less likely to have obscure bugs than other
+multi-threaded techniques.
+
+If you think about that for a second, then distributed systems aren't really a
+big deal.  Instead of sending messages via a channel, we can just send the same
+messages over a standard network socket to achieve the same result.  In this
+case, a distributed system can be either multiple processes running on the same
+box, or processes running on different boxes.
+
+----------------------------
+Simple Network Communication
+----------------------------
+
+So let's create a simple message passing API using network sockets.
+
+------------------------------
+Physically Distributed Systems
+------------------------------
+
+Let's start off with a distributed system where the nodes would be located in
+seperate physical locations.  In this case, we'll imagine an ATM network where
+several ATM machines located throughout the world communicate with a central
+bank to add and remove money from user's accounts.
+
+
