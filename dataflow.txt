@@ -370,7 +370,27 @@ that it sends the message 1 if ether input is 1, and 0 only if both inputs are
 Half Adder
 ==========
 
-To finish things up, we'll use the components we have created to build a half-adder.  A half-adder performs addition on two bits.  [TODO: Make half adder diagram]  We chain together several of our components and flip the switches.  Flipping the switches changes their state, and propigates these changes through the system via dataflow:
+To finish things up, we'll use the components we have created to build a half-adder.  A half-adder performs addition on two bits.
+
+::
+
+  Simple half-adder circuit
+
+       _____                   ____
+      /    / <--- inputA ---> |    \
+  +< (    (                   |     ) >-+-> carry
+  |   \____\ <--- inputB ---> |____/    |
+  |                                     |
+  |       +-----------------------------+
+  |       |     _
+  |       |    | \             ____
+  |       +--> |  )O >------> |    \
+  |            |_/            |     ) >---> result
+  |                     +---> |____/
+  +---------------------+
+
+
+We chain together several of our components and flip the switches.  Flipping the switches changes their state, and propigates these changes through the system via dataflow:
 
 .. include:: code\\digitalCircuit.py
    :literal:
