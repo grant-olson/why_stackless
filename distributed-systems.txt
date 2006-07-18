@@ -38,4 +38,18 @@ seperate physical locations.  In this case, we'll imagine an ATM network where
 several ATM machines located throughout the world communicate with a central
 bank to add and remove money from user's accounts.
 
+-------------------
+CPU Intensive Tasks
+-------------------
+
+Another reason to use distributed systems is to break a CPU intensive task across multiple processes or machines.  In this case we'll we'll use a naive prime number generator.  It demonstrates the two key factors that determine the ability to distribute the workload:
+
+    + It is computationally intensive.
+
+    + It can be broken down into discrete chunks.  Testing each number is an
+      independent operation that is not reliant on the results of testing
+      another number.
+
+Let's start with a simple program:
+
 
