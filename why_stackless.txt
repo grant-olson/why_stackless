@@ -23,8 +23,6 @@ Why Stackless? An Introduction to Concurrent Programming with Stackless Python
 
 .. include:: actors.txt
 
-.. include:: preemtive-multitasking.txt
-
 .. include:: code_listings.txt
 
 .. include:: copyright.txt
