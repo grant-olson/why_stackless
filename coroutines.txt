@@ -2,9 +2,9 @@
 Coroutines
 ==========
 
--------------------------------
-The Problem with to Subroutines
--------------------------------
+----------------------------
+The Problem with Subroutines
+----------------------------
 
 Most conventional programming languages expose the concept of subroutines.  A
 subroutine is called by another routine (which is probably considered a
