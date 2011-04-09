@@ -1,0 +1,9 @@
+=====================
+Copyright and License
+=====================
+
+This document is licensed under a CC-BY license:
+
+http://creativecommons.org/licenses/by/3.0/legalcode
+
+.. include:: LICENSE
