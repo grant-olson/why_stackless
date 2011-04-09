@@ -1,11 +1,11 @@
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Introduction to Concurrent Programming with Stackless Python
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why Stackless? An Introduction to Concurrent Programming with Stackless Python
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:Author:    Grant Olson
-:Email:     olsongt@verizon.net
-:Date:      July 7, 2006
-
+:Author: Grant T. Olson
+:Email: kgo at grant-olson dot net
+:Date: July 7, 2006
+:Copyright: Copyright 2006, 2010 - Grant T. Olson
 
 .. contents:: Table of Contents
 
@@ -27,3 +27,4 @@ Introduction to Concurrent Programming with Stackless Python
 
 .. include:: code_listings.txt
 
+.. include:: copyright.txt
