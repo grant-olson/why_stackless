@@ -35,10 +35,10 @@ In this example, we'll configure a small world where robots can move around and
 fight utilizing the actor model.  To begin with, let's define a base class for
 all of our actors:
 
-.. include:: code\\actors.py
+.. include:: code/actors.py
    :literal:
-   :starting-line: 6
-   :ending-line: 17
+   :start-line: 6
+   :end-line: 17
 
 By default, an actor creates a channel to accept messages, assigns a method to
 process the messages, and kicks off a loop to dispatch accepted messages to the
@@ -74,10 +74,10 @@ interact.  Other actors send a JOIN message to the world actor, and it tracks
 them.  Periodically, it sends out a WORLD_STATE message which contains
 information about all visible actors for their own internal processing:
 
-.. include:: code\\actors.py
+.. include:: code/actors.py
    :literal:
-   :starting-line: 19
-   :ending-line: 71
+   :start-line: 19
+   :end-line: 71
 
 In addition to the message processing tasklet, the world actor spawns a
 separate tasklet that runs the sendStateToActors() method.  This method has a
@@ -115,10 +115,10 @@ a COLLISION with the world's walls, it will turn 73 degrees and attempt to
 continue moving forward.  Any other message is ignored.
 
 
-.. include:: code\\actors.py
+.. include:: code/actors.py
    :literal:
-   :starting-line: 123
-   :ending-line: 155
+   :start-line: 123
+   :end-line: 155
 
 Note that the constructor for the robot issues a join message to the world
 object to register it.  Other than that, hopefully the code is straightforward.
@@ -145,10 +145,10 @@ Luckily, we are able to isolate all of the pygame code into a single actor, so
 the rest of the code should remain 'unpolluted'  and understandable without
 knowing or caring how pygame renders the display:
 
-.. include:: code\\actors.py
+.. include:: code/actors.py
    :literal:
-   :starting-line: 73
-   :ending-line: 121
+   :start-line: 73
+   :end-line: 121
 
 This takes the WORLD_STATE and creates a display based on that.
 
@@ -187,10 +187,10 @@ cumbersome.  To make this easier, we'll create a properties object to track the
 info.  This will be sent with the JOIN message instead of individual
 parameters.
 
-.. include:: code\\actors2.py
+.. include:: code/actors2.py
    :literal:
-   :starting-line: 20
-   :ending-line: 31
+   :start-line: 20
+   :end-line: 31
 
 Note that the properties object is created to transfer information between
 actors.  We will not store a local copy with the actor that creates it.  If we
@@ -225,17 +225,17 @@ box.  If so they collide.
 
 That's really all there is to our basic collision detection system.  Here is the function to test for an individual collision:
 
-.. include:: code\\actors2.py
+.. include:: code/actors2.py
    :literal:
-   :starting-line: 48
-   :ending-line: 63
+   :start-line: 48
+   :end-line: 63
 
 There is another method that iterates through all actors and tests.  It is called during the sendStateToActors() tasklet:
 
-.. include:: code\\actors2.py
+.. include:: code/actors2.py
    :literal:
-   :starting-line: 72
-   :ending-line: 96
+   :start-line: 72
+   :end-line: 96
 
 Constant Time
 =============
@@ -279,10 +279,10 @@ will be able to calculate appropriate update information.
 
 Code implementing the update rate:
 
-.. include:: code\\actors2.py
+.. include:: code/actors2.py
    :literal:
-   :starting-line: 106
-   :ending-line: 130
+   :start-line: 106
+   :end-line: 130
 
 Damage, Hitpoints, and Dying
 ============================
@@ -296,10 +296,10 @@ damage is less than or equal to 0, the actor receiving the message sends a
 KILLME message to world actor.  Here is the applicable code snipped from the
 defaultMessageAction() method of the basic robot:
 
-.. include:: code\\actors2.py
+.. include:: code/actors2.py
    :literal:
-   :starting-line: 238
-   :ending-line: 243
+   :start-line: 238
+   :end-line: 243
 
 In addition, we've arbitrarily decided that COLLISION messages will deduct one
 hitpoint and send a KILLME message to the world if necessary.
@@ -308,10 +308,10 @@ When the WORLD actor receives a KILLME message, it will set it's internal
 record of the sending actor's hitpoints to zero.  Later, as part of the normal
 update, it will delete actors with hitpoints less than or equal to zero:
 
-.. include:: code\\actors2.py
+.. include:: code/actors2.py
    :literal:
-   :starting-line: 65
-   :ending-line: 70
+   :start-line: 65
+   :end-line: 70
 
 Note that we've introduced the channels *send_exception()* method here.
 Instead of a normal send, this causes *channel.receive()* to raise an exception
@@ -347,10 +347,10 @@ should at least blow up.  Robots will create an explosion actor when they die.
 This is not physical, so it simply displays the explosion image.  It will kill
 itself after three seconds so that the explosion image will disappear:
 
-.. include:: code\\actors3.py
+.. include:: code/actors3.py
    :literal:
-   :starting-line: 249
-   :ending-line: 270
+   :start-line: 249
+   :end-line: 270
 
 Mine Dropping Robot
 ===================
@@ -358,10 +358,10 @@ Mine Dropping Robot
 Now we'll create a robot that drops mines.  Before the robot class, we'll need
 the mine class:
 
-.. include:: code\\actors3.py
+.. include:: code/actors3.py
    :literal:
-   :starting-line: 271
-   :ending-line: 296
+   :start-line: 271
+   :end-line: 296
 
 This is a simple actor.  It simply sits there until something hits it, then
 sends 25 points damage to whatever it collided with and kills itself.
@@ -371,10 +371,10 @@ First, to mix things up, I've configured the minedropperRobot to move in a
 serpentine fashion instead of slowly turning in the same direction.  Secondly,
 it will create a mine every second and place it directly behind itself:
 
-.. include:: code\\actors3.py
+.. include:: code/actors3.py
    :literal:
-   :starting-line: 297
-   :ending-line: 373
+   :start-line: 297
+   :end-line: 373
 
 Spawner Pads
 ============
@@ -387,10 +387,10 @@ you create your own robot classes, you won't need to go through any sort of
 registration mechanism with the spawner class.  Other than that, the class
 should be reasonably straightforward:
 
-.. include:: code\\actors3.py
+.. include:: code/actors3.py
    :literal:
-   :starting-line: 374
-   :ending-line: 406
+   :start-line: 374
+   :end-line: 406
 
 The Final Simulation
 ====================

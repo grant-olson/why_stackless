@@ -28,7 +28,7 @@ infinitely if allowed.
 Tradional threaded version of the game
 --------------------------------------
 
-.. include:: code\\hackysackthreaded.py
+.. include:: code/hackysackthreaded.py
    :literal:
 
 A hackysacker class is initialized with it's name, a reference to a global list
@@ -129,7 +129,7 @@ on my machine.  Also note that 1000 threads takes about three times as long as
 Stackless
 ---------
 
-.. include:: code\\hackysackstackless.py
+.. include:: code/hackysackstackless.py
    :literal:
 
 This code is virtually identical to the threaded version.  The primary

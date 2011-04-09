@@ -13,7 +13,7 @@ definition, a subroutine is subordinate to the caller.
 
 Take the following example:
 
-.. include:: code\\pingpong.py
+.. include:: code/pingpong.py
    :literal:
 
 An experienced programmer will see a problem with this program.  It causes a
@@ -93,7 +93,7 @@ the two benefits of channels is that they allow you to control flow between
 tasklets.  By using channels, we can go back and forth between the ping and
 pong tasklets as much as we want without a stack overflow:
 
-.. include:: code\\pingpong_stackless.py
+.. include:: code/pingpong_stackless.py
    :literal:
 
 You can run this program as long as you want and it won't crash.  Also, if you

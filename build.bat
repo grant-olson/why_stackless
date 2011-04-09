@@ -1,3 +1,8 @@
+:: This is really out-of-date (note the use of cvs)
+:: I don't have a windows box right now to update it.
+:: But didn't want to delete this file in case you need
+:: a starting point
+
 rmdir /S /Q build
 
 cvs -d:ext:grant@cvs.yoyodyne.gto:/usr/local/cvsroot export -dbuild -DNOW why_stackless
